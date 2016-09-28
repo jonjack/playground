@@ -1,0 +1,45 @@
+
+### Eclipse ###
+.project
+.classpath
+.buildpath
+.settings
+.target
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+### SBT ###
+.cache
+.history
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+### SCALA-IDE ###
+.scala_dependencies
+.worksheet
+
+### ACTIVATOR ###
+.tmpBin
+project/project
+project/target
+target
+tmp
+.history
+dist
+logs/
+/RUNNING_PID
+
+### OS ###
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
