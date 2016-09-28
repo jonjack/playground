@@ -1,0 +1,36 @@
+<definitions name="EchoService" targetNamespace="http://www.site.org" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.site.org" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsp1_2="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://www.site.org" schemaLocation="http://localhost:8080/ws/echo?xsd=1"/>
+		</xsd:schema>
+	</types>
+	<message name="echo">
+		<part element="tns:echo" name="parameters"/>
+	</message>
+	<message name="echoResponse">
+		<part element="tns:echoResponse" name="parameters"/>
+	</message>
+	<portType name="EchoWS">
+		<operation name="echo">
+			<input message="tns:echo" wsam:Action="http://www.site.org/EchoWS/echoRequest"/>
+			<output message="tns:echoResponse" wsam:Action="http://www.site.org/EchoWS/echoResponse"/>
+		</operation>
+	</portType>
+	<binding name="EchoWSPortBinding" type="tns:EchoWS">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="echo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+		</operation>
+	</binding>
+	<service name="EchoService">
+		<port binding="tns:EchoWSPortBinding" name="EchoWSPort">
+			<soap:address location="http://localhost:8080/ws/echo"/>
+		</port>
+	</service>
+</definitions>
