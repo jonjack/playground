@@ -1,12 +1,7 @@
 
 ## Random collection of Play framework research projects
 
-### Requirements for running Play.
-
- [![Build Status](https://travis-ci.org/jonjack/jagerbomb.svg?branch=master)](https://travis-ci.org/jonjack/jagerbomb)
-
-
-### Requirements:
+### Requirements for running Play
 
 Download [Typesafe](https://www.typesafe.com/get-started)'s [Activator](http://downloads.typesafe.com/typesafe-activator/1.3.5/typesafe-activator-1.3.5.zip?_ga=1.202425235.308194262.1434196995) and add it to your PATH.
 
