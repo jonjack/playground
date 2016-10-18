@@ -1,3 +1,8 @@
+
+> Still on the TODO list!
+
+---
+
 # play-api-template
 
 R&D for serving an api off of Play (Scala).
