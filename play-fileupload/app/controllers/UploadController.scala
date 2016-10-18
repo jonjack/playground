@@ -38,16 +38,13 @@ class UploadController @Inject() (implicit val messagesApi: MessagesApi, conf: C
     Ok(views.html.index(form))
   }
 
-  val form = Form(
-      mapping("filename" -> text)(FormData.apply)(FormData.unapply))
-
+  
   /**
-   * Trash the original temporary file after we have done with it.
-   */
-  private def delete(file: File) = {
-    //logger.info(s"deleting temporary file = ${file.getPath}")
+  val form = Form(mapping("filename" -> text)(FormData.apply)(FormData.unapply))
+
+  // Trash the original temporary file after we have done with it.
+  private def deleteTempFile(file: File) = {
     Files.deleteIfExists(file.toPath)
-    "DELETED"
   }
 
  /**
@@ -60,9 +57,10 @@ class UploadController @Inject() (implicit val messagesApi: MessagesApi, conf: C
    * - we can control the application-local path where we drop the new copies to be dynamic ie. based on user, or catch, id ?
    * 
    */
+  // Copies temp file to 
   private def copyFile(file: File, name: String) = {
-    val fileStoreBasePath = conf.underlying.getString("image.store")    // file store path from config
-    val path = Files.copy(file.toPath(), Paths.get(fileStoreBasePath, ("copy_" + name)), REPLACE_EXISTING)
+    //val fileStoreBasePath = conf.underlying.getString("image.store")    // file store path from config
+    val path = Files.copy(file.toPath(), Paths.get("/tmp/uploaded/", ("copy_" + name)), REPLACE_EXISTING)
     path
   }
   
@@ -98,10 +96,48 @@ class UploadController @Inject() (implicit val messagesApi: MessagesApi, conf: C
       
       case FilePart(key, filename, contentType, file) =>
         val copy = copyFile(file, filename)
-        val deleted = delete(file)  // delete original uploaded file after we have 
+        val deleted = deleteTempFile(file)  // delete original uploaded file after we have 
         copy   
     }
-    Ok(s"file size = ${fileOption}")
+    Ok(s"Uploaded: ${fileOption}")
   }
+
+**/
+  
+
+    // Type for multipart body parser     
+    type FilePartHandler[A] = FileInfo => Accumulator[ByteString, FilePart[A]]
+    
+    val form = Form(mapping("file" -> text)(FormData.apply)(FormData.unapply))
+        
+    private def deleteTempFile(file: File) = Files.deleteIfExists(file.toPath)
+    
+    // Copies temp file to your loc with provided name
+    private def copyFile(file: File, name: String) =
+        Files.copy(file.toPath(), Paths.get("/tmp/uploaded/", ("copy_" + name)), REPLACE_EXISTING)
+      
+    // FilePartHandler which returns a File, rather than Play's TemporaryFile class
+    private def handleFilePartAsFile: FilePartHandler[File] = {
+        case FileInfo(partName, filename, contentType) =>
+          val attr = PosixFilePermissions.asFileAttribute(util.EnumSet.of(OWNER_READ, OWNER_WRITE))
+          val path: Path = Files.createTempFile("multipartBody", "tempFile", attr)
+          val file = path.toFile
+          val fileSink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(file.toPath())
+          val accumulator: Accumulator[ByteString, IOResult] = Accumulator(fileSink)
+          accumulator.map {
+            case IOResult(count, status) =>
+              FilePart(partName, filename, contentType, file)
+          } (play.api.libs.concurrent.Execution.defaultContext)
+      }
+    
+    def upload = Action(parse.multipartFormData(handleFilePartAsFile)) { implicit request =>
+        val fileOption = request.body.file("file").map {
+          case FilePart(key, filename, contentType, file) =>
+            val copy = copyFile(file, filename)
+            val deleted = deleteTempFile(file)  // delete original uploaded file after we have 
+            copy   
+        }
+        Ok(s"Uploaded: ${fileOption}")
+    }
 
 }
