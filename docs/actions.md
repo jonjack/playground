@@ -1,4 +1,11 @@
-# Actions
+# Controllers & Actions
 
-Play _**actions**_ are arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary - for the developer in any case - between the web application code and the HTTP protocol. There is a considerable layer of code between the HTTP protocol server (which is [Netty](http://netty.io/) at the time of writing) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with.
+An `Action` is arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary - for the developer in any case - between the web application code and the HTTP protocol. There is a considerable layer of code between the HTTP protocol server (which is [Netty](http://netty.io/) at the time of writing) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with.
+
+A `Controller` can be thought of as just a class that provides some context and utilities for helping you create and organise your `Action`s and their associated `Result`s.
+
+## What is an Action?
+
+As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), 
+
 
