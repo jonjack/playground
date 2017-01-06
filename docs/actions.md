@@ -16,17 +16,18 @@ def invokeBlock[A](request: R[A], block: P[A] => Future[Result]): Future[Result]
 
 This basically says _"Give me a `Request`, and a block of code which takes a Parameter type and generates a `Future[Result]`, and I will return you that `Future[Result]`_. Basically, the framework supplies the `Request` object, and takes care of wrapping your `Result` in a `Future` so that it can be executed somewhere later in an asynchronous fashion. All you really need to do is write the _block_ of code that generates the `Result` and the framework takes care of the rest.
 
-
-```scala
-Action -> ActionBuilder -> ActionFunction
-```
-
 In the `Action.class` (which is where `ActionBuilder` and `ActionFunction` are defined) there is a helper `Action` object which defines `invokeBlock` so that you do not have to (in general):-
 
 ```scala
 object Action extends ActionBuilder[Request] {
   def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
 }
+```
+
+The type hierarchy for Actions is as follows:-
+
+```scala
+Action -> ActionBuilder -> ActionFunction
 ```
 
 
