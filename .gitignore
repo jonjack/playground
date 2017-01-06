@@ -1,0 +1,53 @@
+### OS ###
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+
+### ACTIVATOR ###
+activator
+activator.bat
+activator-launch-1.3.5.jar
+.tmpBin
+project/project
+project/target
+target
+tmp
+.history
+dist
+logs/
+/RUNNING_PID
+.cache-main
+.cache-tests
+
+### SBT ###
+.cache
+.history
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+### IDE ###
+.project
+.classpath
+.buildpath
+.settings
+.target
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+.scala_dependencies
+.worksheet
+
+#### mongo ###
+mongo/*
+
+#### redis ###
+redis/*
