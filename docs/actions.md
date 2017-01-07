@@ -6,7 +6,7 @@ A `Controller` can be thought of as just a class that provides some context and 
 
 ## What is an Action?
 
-As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. In a nutshell, an `Action` takes a `Request` object as argument - which is provided by the Play framework when it invokes our `Action` method after matching the HTTP request to a `route` defined in our routing configuration). The code block that we define in our `Action` is then invoked for us. Finally, the last expression in our block, which is required to create a `Result` object, is wrapped in a `Future` object for us (by the underlying framework) and this is then returned by the `Action` to the framework, to be computed later, asynchronously (probably by a different thread). 
+As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. In a nutshell, an `Action` takes a `Request` object as argument (which is provided by the Play framework for us when it invokes our `Action` method  - after matching the HTTP request to a `route` defined in our routing configuration). The code block that we define in our `Action` is then invoked for us. Finally, the last expression we define in our `Action` code block, which is required to create a `Result` object, is then wrapped in a `Future` object for us (by the underlying framework) and this is then returned by the `Action` to the framework, to be computed later, asynchronously (probably by a different thread). 
 
 Play provides us with the `ActionBuilder` trait to make the job of creating these `Action` functions easier. The `ActionFunction` trait defines the key abstract method called `invokeBlock` which any concrete `ActionBuilder` needs to override. If you study the signature of this method, it describes the general abstraction for how an `Action` behaves:- 
 
@@ -29,6 +29,17 @@ The type hierarchy for Actions is as follows:-
 ```scala
 Action -> ActionBuilder -> ActionFunction
 ```
+
+> In a nutshell, the framework provides our `Action` with a `Request` and also takes care of wrapping the `Result` in a `Future` to be completed asynchronously somewhere. The only thing we (generally) have to do is define the code block inside the `Action` that we would like to be executed, and which must result in the creation of a `Result`. 
+
+
+## Non-blocking Actions
+
+I believe that all the code we define in an Action, up until the final expression which generates the `Result`, will be executed in the thread that invoked the `Action`. This means that the `Future[Result]` will not be returned to the framework for completion until all the code (apart from the final `Result` creation expression) has been executed. So if we call any other services we should ensure that they are non-blocking - ie. that they do not cause a context switch on a core - otherwise this slows down the execution of Actions and potentially compromises the responsiveness of our application.
+
+#### A note on execution contexts
+
+I believe that running everything in the default execution context ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking 
 
 ## Action Composition
 
