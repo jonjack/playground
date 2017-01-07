@@ -39,7 +39,7 @@ I believe that all the code we define in an Action, up until the final expressio
 
 #### A note on execution contexts
 
-I believe that running everything in the default execution context ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking 
+I believe that running everything in the default execution context ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking, if you do have blocking calls somewhere then your Actions will also be potentially compromised as all threads (those executing blocking and non-blocking code alike) will all be competing for the same number of cores anyway. So I believe the strategy of ensuring Actions only contain non-blocking operations is only effective if you have also taken steps to have blocking code run within a different execution context (ie. a different thread pool). 
 
 ## Action Composition
 
