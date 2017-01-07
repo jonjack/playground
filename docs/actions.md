@@ -6,9 +6,9 @@ A `Controller` can be thought of as just a class that provides some context and 
 
 ## What is an Action?
 
-As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. Play provides us with the `ActionBuilder` trait to make the job of creating these `Action` functions easier.
+As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. In a nutshell, an `Action` takes a `Request` object as argument - which is provided by the Play framework when it invokes our `Action` method after matching the HTTP request to a `route` defined in our routing configuration). The code block that we define in our `Action` is then invoked for us. Finally, the last expression in our block, which is required to create a `Result` object, is wrapped in a `Future` object for us (by the underlying framework) and this is then returned by the `Action` to the framework, to be computed later, asynchronously (probably by a different thread). 
 
-The `ActionFunction` trait defines the key abstract method called `invokeBlock` which any concrete `ActionBuilder` needs to override. If you study the signature of this method, it describes the general abstraction for how an `Action` behaves:- 
+Play provides us with the `ActionBuilder` trait to make the job of creating these `Action` functions easier. The `ActionFunction` trait defines the key abstract method called `invokeBlock` which any concrete `ActionBuilder` needs to override. If you study the signature of this method, it describes the general abstraction for how an `Action` behaves:- 
 
 ```scala
 def invokeBlock[A](request: R[A], block: P[A] => Future[Result]): Future[Result]
@@ -32,7 +32,7 @@ Action -> ActionBuilder -> ActionFunction
 
 ## Action Composition
 
-
+...
 
 
 
