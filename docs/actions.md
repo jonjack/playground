@@ -1,5 +1,11 @@
 # Controllers & Actions
 
+### TLDR
+
+In simple terms, Actions are just objects that take a Request as a parameter and return a Result back to the client. They are essentially the gateway in and out of an application. When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. `Action` method. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `action` object is then used to build the `Response` which the framework takes care of passing back to the client.
+
+---
+
 ## Actions are the boundary between HTTP and your application 
 
 An `Action` is arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary (for the application developer in any case) between any Play application code and the HTTP protocol. 
