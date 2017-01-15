@@ -2,7 +2,19 @@
 
 ### TLDR
 
-In simple terms, Actions are just objects that take a Request as a parameter and return a Result back to the client. They are essentially the gateway in and out of an application. When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. `Action` method. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `action` object is then used to build the `Response` which the framework takes care of passing back to the client.
+In simple terms, Actions are just objects that take a Request as a parameter and return a Result. They are essentially the gateway in and out of an application. When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `action` object is then used to build the `Response` which the framework takes care of passing back to the client.
+
+```scala
+GET      /home         HomeController.homeActionBuilderMethod
+
+class HomeController extends Controller {
+
+  def homeActionBuilderMethod = Action ( request -> response )
+  
+  // or more commonly (since there is 1 function argument) braces are used 
+  def homeActionBuilderMethod = Action { request -> response }
+}
+```
 
 ---
 
@@ -37,6 +49,15 @@ GET      /home         HomeController.homeActionBuilderMethod
 ## How does a HTTP request get passed to your Action?
 
 There is a considerable layer of code between the HTTP protocol server that Play uses (which is [Netty](http://netty.io/) at the time of writing) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. In short, the Netty server and Play framework code will invoke your `Action` method (based on finding a matching mapping in the `routes` file) and pass it a Scala object of type [Request](https://playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.Request).
+
+```scala
+GET      /home         HomeController.homeActionBuilderMethod
+
+class HomeController extends Controller {
+  def homeActionBuilderMethod = Action ( request -> response )
+  def homeActionBuilderMethod = Action { request -> response }
+}
+```
 
 ## What is a Controller?
 
