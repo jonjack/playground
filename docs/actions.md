@@ -14,8 +14,8 @@ An `action` is an object that takes a `Request` object and returns a `Result`.
        |                                                                |
        |                                                                |
 Http --|--> Framework --> Request --> Action --> Result --> Framework --|--> Http
-       |                                 |                              |
-       |                                 v                              |
+       |    URI route                   |                               |
+       |     mapping                    v                               |
        |                      Rest of Application code                  |
                                     Web Services
                                      Datastores
