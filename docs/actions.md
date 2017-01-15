@@ -7,6 +7,8 @@ An `Action` is arguably one of the most fundamental features of the framework, a
 An `action` is an object that takes a `Request` object and returns a `Result`. 
 
 ```scala 
+       |                           Host Machine                         |
+       |                 CPU Cores / Memory / Disk / Files              |
        |                               JVM                              |
        |                           Netty Server                         |
        |                                                                |
