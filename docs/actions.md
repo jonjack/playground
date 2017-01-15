@@ -30,7 +30,7 @@ GET      /home         HomeController.homeActionBuilderMethod
 
 ## How does a HTTP request get passed to your Action?
 
-There is a considerable layer of code between the HTTP protocol server that Play uses (which is [Netty](http://netty.io/) at the time of writing) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. 
+There is a considerable layer of code between the HTTP protocol server that Play uses (which is [Netty](http://netty.io/) at the time of writing) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. In short, the Netty server and Play framework code will invoke your `Action` method (based on finding a matching mapping in the `routes` file) and pass it a Scala object of type [Request](https://playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.Request).
 
 ## What is a Controller?
 
