@@ -22,8 +22,13 @@ Http --|--> Framework --> Request --> Action --> Result --> Framework --|--> Htt
                                        Cache              
 ```
 
-As the Play application developer, you specify the mappings between the URL's that your application will serve results for, and the actions that   The Play framework 
+As the Play application developer, you specify the mappings between the URL's that your application will serve results for, and the actions that build those results, in a `routes` file. The following example mapping will cause any HTTP request using the GET method on the `home` resource, to invoke the `homeActionBuilderMethod` (contained in the `HomeController`).
 
+```scala
+GET      /home         HomeController.homeActionBuilderMethod
+```
+
+## How does a HTTP request get passed to your Action?
 
 There is a considerable layer of code between the HTTP protocol server that Play uses (which is [Netty](http://netty.io/) at the time of writing) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. 
 
