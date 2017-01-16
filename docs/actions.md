@@ -6,9 +6,15 @@ For responding to client requests, Actions act as the  main entry/exit point to 
 
 When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `Action` object is then used to build the `Response` which the framework takes care of passing back to the client.
 
+An example **Mapping** betwen URI and action method
+
 ```scala
 GET      /home         HomeController.homeActionBuilderMethod
+```
 
+An example **Controller** with methods that return an Action to handle the request for `/home`
+
+```scala
 class HomeController extends Controller {
 
   def homeActionBuilderMethod = Action ( request -> response )
