@@ -43,9 +43,11 @@ Play is designed to be asynchronous and non-blocking everywhere ....
 - need to refresh on _asynchronous_ and
 - need to refresh on _non-blocking_
 
-Play APIs (eg. WS) are non-blocking in that they do not cause threads to block on a core (context switched). If you have to talk to a DB which is going to block (eg. JDBC) then you have to do this somewhere. I think the advice that Actions should never call any blocking code is not because it will cause the Action to delay in returning (since all Actions are wrapped in a Future they will always be pushed somewhere else to complete) but I think it is assumed that to keep your app responsive you are doing any blocking work in code running in a different thread pool somewhere.
+Play APIs (eg. WS) are non-blocking in that they do not cause threads to block on a core (context switched). If you have to talk to a DB which is going to block (eg. JDBC) then you have to do this somewhere. I think the advice that Actions should never call any blocking code is not because it will cause the Action to delay in returning (since all Actions are wrapped in a Future they will always be pushed somewhere else to complete asynchronously) but I think it is assumed that to keep your app responsive you are doing any blocking work in code running in a different thread pool somewhere. As I said above, if you are doing things that may block, and using a single thread pool, then I guess you may as well block from an Action since some thread is going to block somewhere and  if you do start to bump up against the number of cores available to that single pool then having ensured your controllers are non-blocking will not save your app from potentially becoming unresponsive - having controllers that are lightning fast doesn't help if there are no spare threads to run them on (even if they do return quickly).
 
-It is useful to keep in mind that if you are talking to 
+If you do blocking work in another thread pool from that servicing your controllers, then even though clients may be waiting for those blocking calls to complete (from the requests that were passed over to the other pool to complete), your controllers will be able to keep servicing their requests very quickly which means that new clients will still be able to make requests to your application which means it remains responsive. Even though some clients will be kept hanging  around waiting for responses, your application will appear to other clients as being responsive because controllers will still be able to take their requests. 
+
+It is useful to keep in mind that if you are talking to a blocking DB (for example), and your application is running a lot of transactions that causes the DB to queue up requests - eg. lots of heavy reads - then 
 
 ---
 
