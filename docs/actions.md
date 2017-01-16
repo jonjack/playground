@@ -1,5 +1,10 @@
 # Controllers & Actions
 
+[What are Actions & Controllers?](#)      
+[They are the boundary between your application and the outside world](#)    
+df    
+ddd
+
 ### TLDR
 
 From a logical point of view, Actions are the main gateway through which your Play application manages the requests (from) and responses (to) the clients using the application. From an implementation point of view, an `action` is an object that takes a `Request` object and returns a `Result`. 
