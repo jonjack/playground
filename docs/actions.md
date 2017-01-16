@@ -1,16 +1,76 @@
 # Controllers & Actions
 
-[What are Actions & Controllers?](#)      
-[They are the boundary between your application and the outside world](#)    
-df     
+- [What are Actions?](#)
+- [What are Controllers?](#)      
+- [The boundary between application and outside world](#)    
+- [Actions should be non-blocking](#)    
+- [Which thread pool should Actions run in?](#)
+- [Action composition](#)
+- [Architecture](#)
 
-ddd
+---
+
+## What are Actions?
+
+...
+
+---
+
+## What are Controllers?
+
+...
+
+---
+
+## The boundary between application and outside world
+
+...
+
+---
+
+## Actions should be non-blocking
+
+...
+
+---
+
+## Which thread pool should Actions run in?
+
+I think that running everything in the default execution context (think thread pool) ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking, if you do have blocking calls somewhere then your Actions will also be potentially compromised as all threads (those executing blocking and non-blocking code alike) will all be competing for the same set of cores anyway. So I believe the strategy of ensuring Actions only contain non-blocking operations is only effective if you have also taken steps to have blocking code run within a different execution context (ie. a different thread pool). 
+
+If 
+
+---
+
+## Action composition
+
+...
+
+---
+
+
+
+
+
+        
+
+
+
+
+
+
+
+---
 
 ### TLDR
 
 From a logical point of view, Actions are the main gateway through which your Play application manages the requests (from) and responses (to) the clients using the application. From an implementation point of view, an `action` is an object that takes a `Request` object and returns a `Result`. 
 
-The schematic below indicates where Actions roughly sit in your the application architecture. 
+---
+
+## Architecture
+
+Here are some diagrams I drew to try and reason about how Actions sit within a Play application architecture.
 
 ```scala
                               Your  Play  Application  Code
@@ -66,21 +126,6 @@ I believe the use of the term _Controller_ (in Play) stems from the _Front Contr
 
 An `Action` is arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary (for the application developer in any case) between any Play application code and the HTTP protocol.  
 
-```scala 
-       |                           Host Machine                         |
-       |                 CPU Cores / Memory / Disk / Files              |
-       |                               JVM                              |
-       |                           Netty Server                         |
-       |                                                                |
-       |                                                                |
-Http --|--> Framework --> Request --> Action --> Result --> Framework --|--> Http
-       |    URI route                   |                               |
-       |     mapping                    v                               |
-       |                      Rest of Application code                  |
-                                    Web Services
-                                     Datastores
-                                       Cache              
-```
 
 As the Play application developer, you specify the mappings between the URL's that your application will serve results for, and the actions that build those results, in a `routes` file. The following example mapping will cause any HTTP request using the GET method on the `home` resource, to invoke the `homeActionBuilderMethod` (contained in the `HomeController`).
 
@@ -138,9 +183,8 @@ Action -> ActionBuilder -> ActionFunction
 
 I believe that all the code we define in an Action, up until the final expression which generates the `Result`, will be executed in the thread that invoked the `Action`. This means that the `Future[Result]` will not be returned to the framework for completion until all the code (apart from the final `Result` creation expression) has been executed. So if we call any other services we should ensure that they are non-blocking - ie. that they do not cause a context switch on a core - otherwise this slows down the execution of Actions and potentially compromises the responsiveness of our application.
 
-#### A note on execution contexts
 
-I believe that running everything in the default execution context ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking, if you do have blocking calls somewhere then your Actions will also be potentially compromised as all threads (those executing blocking and non-blocking code alike) will all be competing for the same number of cores anyway. So I believe the strategy of ensuring Actions only contain non-blocking operations is only effective if you have also taken steps to have blocking code run within a different execution context (ie. a different thread pool). 
+
 
 ## Action Composition
 
