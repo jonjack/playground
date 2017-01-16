@@ -38,7 +38,14 @@
 
 I think that running everything in the default execution context (think thread pool) ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking, if you do have blocking calls somewhere then your Actions will also be potentially compromised as all threads (those executing blocking and non-blocking code alike) will all be competing for the same set of cores anyway. So I believe the strategy of ensuring Actions only contain non-blocking operations is only effective if you have also taken steps to have blocking code run within a different execution context (ie. a different thread pool). 
 
-If you do run the whole application in the same thread pool then maybe it is still important to keep your Actions non-blocking (and have any blocking work done elsewhere) because Actions are guaranteed, by design, to be executed asynchronously 
+Play is designed to be asynchronous and non-blocking everywhere ....
+
+- need to refresh on _asynchronous_ and
+- need to refresh on _non-blocking_
+
+Play APIs (eg. WS) are non-blocking in that they do not cause threads to block on a core (context switched). If you have to talk to a DB which is going to block (eg. JDBC) then you have to do this somewhere. I think the advice that Actions should never call any blocking code is not because it will cause the Action to delay in returning (since all Actions are wrapped in a Future they will always be pushed somewhere else to complete) but I think it is assumed that to keep your app responsive you are doing any blocking work in code running in a different thread pool somewhere.
+
+It is useful to keep in mind that if you are talking to 
 
 ---
 
