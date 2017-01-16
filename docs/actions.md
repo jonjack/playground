@@ -2,20 +2,25 @@
 
 ### TLDR
 
+From a logical point of view, Actions 
 ```scala
-+--------------+     +--------------------+------------------------------+
-| HTTP Request | --> |    Controller      |                              |
-+--------------+     |      |             |     Other Application code   |
-                     |      |- action     |                  |
-                     |      |- action <---|----->              |
-                     |      |- action     |           Caches             |
-                     |                    |                              |
-                     +--------------------+------------------------------+
-                     |                                                   |
-                     |               Web Services                        |
-                     |                Datastores                         |
-                     |                  Caches                           |
-                     +---------------------------------------------------+
+                              Your  Play  Application  Code
+ Netty HTTP Server     +--------------------+------------------------------+
+                       |                    |                              |
+   Play Framework      |    Controllers     |                              |
+                       |      |             |                              |
+                       |      |             |                              |
+   HTTP Request ---------->   |- Action     |                              |
+   HTTP Response <---------   |- Action  ---------► Other Application code |
+                       |                    |                              |
+                       |          |         |            |                 |
+                       +----------|---------+------------|-----------------+
+                                  |                      |
+                       +----------|----------------------|-----------------+                                                  
+                       |          ▼     Web Services     ▼                 |
+                       |                 Datastores                        |
+                       |                   Caches                          |
+                       +---------------------------------------------------+
 ```
 
 For responding to client requests, Actions act as the  main entry/exit point to our application-specific code. In implementation terms, they are objects that take a Request as a parameter and return a Result. 
