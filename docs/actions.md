@@ -2,7 +2,10 @@
 
 ### TLDR
 
-From a logical point of view, Actions 
+From a logical point of view, Actions are the main gateway through which your Play application manages the requests (from) and responses (to) the clients using the application. From an implementation point of view, an `action` is an object that takes a `Request` object and returns a `Result`. 
+
+The schematic below indicates where Actions roughly sit in your the application architecture. 
+
 ```scala
                               Your  Play  Application  Code
  Netty HTTP Server     +--------------------+------------------------------+
@@ -10,8 +13,8 @@ From a logical point of view, Actions
    Play Framework      |    Controllers     |                              |
                        |      |             |                              |
                        |      |             |                              |
-   HTTP Request ---------->   |- Action     |                              |
-   HTTP Response <---------   |- Action  ---------► Other Application code |
+  HTTP Requests  --------->   |- Action     |                              |
+  HTTP Responses <---------   |- Action  ---------► Other Application code |
                        |                    |                              |
                        |          |         |            |                 |
                        +----------|---------+------------|-----------------+
@@ -23,7 +26,7 @@ From a logical point of view, Actions
                        +---------------------------------------------------+
 ```
 
-For responding to client requests, Actions act as the  main entry/exit point to our application-specific code. In implementation terms, they are objects that take a Request as a parameter and return a Result. 
+
 
 When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `Action` object is then used to build the `Response` which the framework takes care of passing back to the client.
 
@@ -45,7 +48,7 @@ class HomeController extends Controller {
 }
 ```
 
-Each request coming into our application needs to invoke some method which returns an `Action` object appropriate for dealing with that request. We therefore need somewhere to define these methods. This is what Controllers are for
+Each request coming into our application needs to invoke some method which returns an `Action` object appropriate for dealing with that request. We therefore need somewhere to define these methods. This is what Controllers are for.
 
 > #### Controller design pattern
 I believe the use of the term _Controller_ (in Play) stems from the _Front Controller_ pattern which is a [structural design pattern](https://en.wikipedia.org/wiki/Software_design_pattern#Structural_patterns) intended to act a single, central entry point to an application. Controllers in Play can generally be thought of more in terms of _Page Controllers_ however (although they are intended to deal with all response types not just _pages_), since they are generally implemented at a more granular level than a Front Controller ie. you implement controllers for different parts of your application rather than having just a single controller.
@@ -55,9 +58,7 @@ I believe the use of the term _Controller_ (in Play) stems from the _Front Contr
 
 ## Actions are the boundary between HTTP and your application 
 
-An `Action` is arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary (for the application developer in any case) between any Play application code and the HTTP protocol. 
-
-An `action` is an object that takes a `Request` object and returns a `Result`. 
+An `Action` is arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary (for the application developer in any case) between any Play application code and the HTTP protocol.  
 
 ```scala 
        |                           Host Machine                         |
