@@ -49,7 +49,7 @@ If you do blocking work in another thread pool from that servicing your controll
 
 #### Non blocking APIs
 
-It is useful to keep in mind that if you are talking to a blocking DB (for example), and your application is running a lot of transactions that causes the DB to queue up requests - eg. lots of heavy reads - then it may not help to use a non-blocking API in any case ie. clients are not necessarily going to get their responses any quicker using a non-blocking API if the DB is already over-loaded - since it will be the DB itsel, not the threads executing on that will be the bottleneck.
+It is useful to keep in mind that if you are talking to a blocking DB (for example), and your application is running a lot of transactions that causes the DB to queue up requests - eg. lots of heavy reads - then it may not help to use a non-blocking API in any case ie. clients are not necessarily going to get their responses any quicker using a non-blocking API if the DB is already over-loaded - since it will be the DB itself, not the threads executing on that will be the bottleneck.
 
 ---
 
