@@ -2,7 +2,7 @@
 
 ### TLDR
 
-In simple terms, Actions are just objects that take a Request as a parameter and return a Result. They are essentially the gateway in and out of an application. When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `action` object is then used to build the `Response` which the framework takes care of passing back to the client.
+In simple terms, Actions are just objects that take a Request as a parameter and return a Result. They are essentially the gateway in and out of an application. When a request for a resource is made to your Play application, the framework will search the `routes` file to try and match the request to a particular URL pattern. If a match is found, the framework will invoke the method for that pattern and pass it an object representing the `Request`. In return, the framework expects an `Action` object to be returned by the method. This `Action` object is then used to build the `Response` which the framework takes care of passing back to the client.
 
 ```scala
 GET      /home         HomeController.homeActionBuilderMethod
@@ -15,6 +15,12 @@ class HomeController extends Controller {
   def homeActionBuilderMethod = Action { request -> response }
 }
 ```
+
+Each request coming into our application needs to invoke some method which returns an `Action` object appropriate for dealing with that request. We therefore need somewhere to define these methods. This is what Controllers are for
+
+> #### Controller design pattern
+I believe the use of the term _Controller_ (in Play) stems from the _Front Controller_ pattern which is a [structural design pattern](https://en.wikipedia.org/wiki/Software_design_pattern#Structural_patterns) intended to act a single, central entry point to an application. Controllers in Play can generally be thought of more in terms of _Page Controllers_ however (although they are intended to deal with all response types not just _pages_), since they are generally implemented at a more granular level than a Front Controller ie. you implement controllers for different parts of your application rather than having just a single controller.
+
 
 ---
 
