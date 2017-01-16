@@ -38,7 +38,7 @@
 
 I think that running everything in the default execution context (think thread pool) ie. Actions and all other code, will mean that no matter how well you have carefully coded your actions to be non-blocking, if you do have blocking calls somewhere then your Actions will also be potentially compromised as all threads (those executing blocking and non-blocking code alike) will all be competing for the same set of cores anyway. So I believe the strategy of ensuring Actions only contain non-blocking operations is only effective if you have also taken steps to have blocking code run within a different execution context (ie. a different thread pool). 
 
-If 
+If you do run the whole application in the same thread pool then maybe it is still important to keep your Actions non-blocking (and have any blocking work done elsewhere) because Actions are guaranteed, by design, to be executed asynchronously 
 
 ---
 
