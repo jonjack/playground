@@ -47,7 +47,9 @@ Play APIs (eg. WS) are non-blocking in that they do not cause threads to block o
 
 If you do blocking work in another thread pool from that servicing your controllers, then even though clients may be waiting for those blocking calls to complete (from the requests that were passed over to the other pool to complete), your controllers will be able to keep servicing their requests very quickly which means that new clients will still be able to make requests to your application which means it remains responsive. Even though some clients will be kept hanging  around waiting for responses, your application will appear to other clients as being responsive because controllers will still be able to take their requests. 
 
-It is useful to keep in mind that if you are talking to a blocking DB (for example), and your application is running a lot of transactions that causes the DB to queue up requests - eg. lots of heavy reads - then 
+#### Non blocking APIs
+
+It is useful to keep in mind that if you are talking to a blocking DB (for example), and your application is running a lot of transactions that causes the DB to queue up requests - eg. lots of heavy reads - then it may not help to use a non-blocking API in any case ie. clients are not necessarily going to get their responses any quicker using a non-blocking API if the DB is already over-loaded - since it will be the DB itsel, not the threads executing on that will be the bottleneck.
 
 ---
 
