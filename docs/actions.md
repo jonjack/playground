@@ -176,8 +176,6 @@ Action -> ActionBuilder -> ActionFunction
 
 > In a nutshell, the framework provides our `Action` with a `Request` and also takes care of wrapping the `Result` in a `Future` to be completed asynchronously somewhere. The only thing we \(generally\) have to do is define the code block inside the `Action` that we would like to be executed, and which must result in the creation of a `Result`.
 
-
-
 ```scala
 trait Handler
          ▲
@@ -200,10 +198,30 @@ object Action extends ActionBuilder[Request]
 trait ActionRefiner[-R[_], +P[_]] extends ActionFunction[R, P] 
 
 trait ActionTransformer[-R[_], +P[_]] extends ActionRefiner[R, P]
-
 trait ActionFilter[R[_]] extends ActionRefiner[R, R]
+```
+
+```scala
+
+// 
 
 
+```
+
+## Helper companion objects for creating actions
+
+```scala
+object EssentialAction {
+
+    def apply(f: RequestHeader => Accumulator[ByteString, Result]): EssentialAction = new EssentialAction {
+    def apply(rh: RequestHeader) = f(rh)
+  }
+}
+
+object Action extends ActionBuilder[Request] {
+
+  def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
+}
 ```
 
 ## Non-blocking Actions
