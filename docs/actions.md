@@ -55,7 +55,9 @@ It is useful to keep in mind that if you are talking to a blocking DB \(for exam
 
 ## Action composition
 
-The term _**composition**_ here is in the functional sense ie. if we have two functions that both take a parameter \`x\` as in \`f\(x\)\` and \`g\(x\)\`, then, if we can apply the result of one function to another, we can combine them to produce one function that applies both of them as in \`f\(g\(x\)\)\` - in this way we say that \`f\` and \`g\` are _**composable**_.
+The use of the term _**composition**_ here is in the functional sense ie. if we have two functions that both take a parameter \`x\` as in \`f\(x\)\` and \`g\(x\)\`, then, if we can apply the result of one function to another, we can combine them to produce one function that applies both of them as in \`f\(g\(x\)\)\` - in this way we say that \`f\` and \`g\` are _**composable**_.
+
+Since an \`Action\`s are functions we can _compose_ them in the same way.
 
 
 
