@@ -59,10 +59,6 @@ The use of the term _**composition**_ here is in the functional sense ie. if we 
 
 Since an \`Action\`s are functions we can _compose_ them in the same way.
 
-
-
-
-
 ---
 
 ---
@@ -179,6 +175,36 @@ Action -> ActionBuilder -> ActionFunction
 ```
 
 > In a nutshell, the framework provides our `Action` with a `Request` and also takes care of wrapping the `Result` in a `Future` to be completed asynchronously somewhere. The only thing we \(generally\) have to do is define the code block inside the `Action` that we would like to be executed, and which must result in the creation of a `Result`.
+
+
+
+```scala
+trait Handler
+         ▲
+         |
+trait EssentialAction
+         ▲
+         |
+trait Action
+
+
+
+
+trait ActionFunction[-R[_], +P[_]]
+trait ActionBuilder[+R[_]]
+
+trait ActionBuilder[+R[_]] extends ActionFunction[Request, R]
+
+object Action extends ActionBuilder[Request] 
+
+trait ActionRefiner[-R[_], +P[_]] extends ActionFunction[R, P] 
+
+trait ActionTransformer[-R[_], +P[_]] extends ActionRefiner[R, P]
+
+trait ActionFilter[R[_]] extends ActionRefiner[R, R]
+
+
+```
 
 ## Non-blocking Actions
 
