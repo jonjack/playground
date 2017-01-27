@@ -150,7 +150,7 @@ A `Controller` can be thought of as just a class that provides some context and 
 
 ## What is an Action?
 
-The following are examples of methods \(usually defined in a controller\) that all return an \`Action\` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The \`Ok\(\)\` basically creates a response with a HTTP response code of \`200 OK\`.
+The following are examples of methods (usually defined in a controller) that all return an `Action` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The `Ok` basically creates a response with a HTTP response code of `200 OK`.
 
 ```scala
   def parens =                Action ( Ok("Hi") )
