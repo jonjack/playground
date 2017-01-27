@@ -150,6 +150,18 @@ A `Controller` can be thought of as just a class that provides some context and 
 
 ## What is an Action?
 
+The following are examples of methods \(usually defined in a controller\) that all return an \`Action\` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The \`Ok\(\)\` basically creates a response with a HTTP response code of \`200 OK\`.
+
+```scala
+  def parens =                Action ( Ok("Hi") )
+  def braces =                Action { Ok("Hi") }
+  def explictRequest =        Action ( request => Ok("Hi") )
+  def applyParams =           Action.apply ( Ok("Hi") )
+  def applyBraces =           Action.apply { Ok("Hi") }
+  def applyRequest =          Action.apply ( request => Ok("Hi") )
+  def makeRequestImplicit =   Action { implicit request => Ok("Hi") }
+```
+
 As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. In a nutshell, an `Action` takes a `Request` object as argument \(which is provided by the Play framework for us when it invokes our `Action` method  - after matching the HTTP request to a `route` defined in our routing configuration\). The code block that we define in our `Action` is then invoked for us. Finally, the last expression we define in our `Action` code block, which is required to create a `Result` object, is then wrapped in a `Future` object for us \(by the underlying framework\) and this is then returned by the `Action` to the framework, to be computed later, asynchronously \(probably by a different thread\).
 
 Play provides us with the `ActionBuilder` trait to make the job of creating these `Action` functions easier. The `ActionFunction` trait defines the key abstract method called `invokeBlock` which any concrete `ActionBuilder` needs to override. If you study the signature of this method, it describes the general abstraction for how an `Action` behaves:-
@@ -202,10 +214,7 @@ trait ActionFilter[R[_]] extends ActionRefiner[R, R]
 ```
 
 ```scala
-
 // 
-
-
 ```
 
 ## Helper companion objects for creating actions
