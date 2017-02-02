@@ -1,12 +1,14 @@
 # Controllers & Actions
 
-* [What are Actions?](#)
+
+* [What are Actions?](#)    
 * [What are Controllers?](#)      
 * [The boundary between application and outside world](#)    
 * [Actions should be non-blocking](#)    
 * [Which thread pool should Actions run in?](#)
 * [Action composition](#)
-* [Architecture](#)
+* [Architecture](#)    
+* [Articles](#)    
 
 ---
 
@@ -242,4 +244,11 @@ I believe that all the code we define in an Action, up until the final expressio
 ...
 
 ,
+
+---
+
+## Articles
+
+[All Actions are asynchronous]() - very good blog post by James Roper on how Actions work behind the scenes. Very insightful, especially if you are unsure of the difference between `Action.apply` and `Action.async`
+
 
