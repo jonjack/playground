@@ -16,11 +16,11 @@
 
 #### In a nutshell
 
-Actions are simply functions that take a `Request` as input and return a `Result` 
+Actions are simply functions that take a `Request` as input and return a `Result` ie. they are of type `Request => Result`
 
 The Play framework takes care of passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
 
-
+You imp
 
 #### The Details
 
