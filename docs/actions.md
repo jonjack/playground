@@ -14,7 +14,83 @@
 
 ## What are Actions?
 
-...
+#### In a nutshell
+
+Actions are simply functions that take a `Request` as input and return a `Result` 
+
+The Play framework takes care of passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
+
+
+
+#### The Details
+
+The following are examples of methods (usually defined in a controller) that all return an `Action` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The `Ok` basically creates a response with a HTTP response code of `200 OK`.
+
+```scala
+  def parens =                Action ( Ok("Hi") )
+  def braces =                Action { Ok("Hi") }
+  def explictRequest =        Action ( request => Ok("Hi") )
+  def applyParams =           Action.apply ( Ok("Hi") )
+  def applyBraces =           Action.apply { Ok("Hi") }
+  def applyRequest =          Action.apply ( request => Ok("Hi") )
+  def makeRequestImplicit =   Action { implicit request => Ok("Hi") }
+```
+
+As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. In a nutshell, an `Action` takes a `Request` object as argument \(which is provided by the Play framework for us when it invokes our `Action` method  - after matching the HTTP request to a `route` defined in our routing configuration\). The code block that we define in our `Action` is then invoked for us. Finally, the last expression we define in our `Action` code block, which is required to create a `Result` object, is then wrapped in a `Future` object for us \(by the underlying framework\) and this is then returned by the `Action` to the framework, to be computed later, asynchronously \(probably by a different thread\).
+
+Play provides us with the `ActionBuilder` trait to make the job of creating these `Action` functions easier. The `ActionFunction` trait defines the key abstract method called `invokeBlock` which any concrete `ActionBuilder` needs to override. If you study the signature of this method, it describes the general abstraction for how an `Action` behaves:-
+
+```scala
+def invokeBlock[A](request: R[A], block: P[A] => Future[Result]): Future[Result]
+```
+
+This basically says _"Give me a _`Request`_, and a block of code which takes a Parameter type and generates a _`Future[Result]`_, and I will return you that _`Future[Result]`. Basically, the framework supplies the `Request` object, and takes care of wrapping your `Result` in a `Future` so that it can be executed somewhere later in an asynchronous fashion. All you really need to do is write the _block_ of code that generates the `Result` and the framework takes care of the rest.
+
+In the `Action.class` \(which is where `ActionBuilder` and `ActionFunction` are defined\) there is a helper `Action` object which defines `invokeBlock` so that you do not have to \(in general\):-
+
+```scala
+object Action extends ActionBuilder[Request] {
+  def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
+}
+```
+
+The type hierarchy for Actions is as follows:-
+
+```scala
+Action -> ActionBuilder -> ActionFunction
+```
+
+> In a nutshell, the framework provides our `Action` with a `Request` and also takes care of wrapping the `Result` in a `Future` to be completed asynchronously somewhere. The only thing we \(generally\) have to do is define the code block inside the `Action` that we would like to be executed, and which must result in the creation of a `Result`.
+
+```scala
+trait Handler
+         ▲
+         |
+trait EssentialAction
+         ▲
+         |
+trait Action
+
+
+
+
+trait ActionFunction[-R[_], +P[_]]
+trait ActionBuilder[+R[_]]
+
+trait ActionBuilder[+R[_]] extends ActionFunction[Request, R]
+
+object Action extends ActionBuilder[Request] 
+
+trait ActionRefiner[-R[_], +P[_]] extends ActionFunction[R, P] 
+
+trait ActionTransformer[-R[_], +P[_]] extends ActionRefiner[R, P]
+trait ActionFilter[R[_]] extends ActionRefiner[R, R]
+```
+
+```scala
+// 
+```
+
 
 ---
 
@@ -152,72 +228,7 @@ A `Controller` can be thought of as just a class that provides some context and 
 
 ## What is an Action?
 
-The following are examples of methods (usually defined in a controller) that all return an `Action` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The `Ok` basically creates a response with a HTTP response code of `200 OK`.
 
-```scala
-  def parens =                Action ( Ok("Hi") )
-  def braces =                Action { Ok("Hi") }
-  def explictRequest =        Action ( request => Ok("Hi") )
-  def applyParams =           Action.apply ( Ok("Hi") )
-  def applyBraces =           Action.apply { Ok("Hi") }
-  def applyRequest =          Action.apply ( request => Ok("Hi") )
-  def makeRequestImplicit =   Action { implicit request => Ok("Hi") }
-```
-
-As described by the [docs](https://www.playframework.com/documentation/2.5.x/ScalaActions), an `Action` is actually a function of type `Request => Result`. In a nutshell, an `Action` takes a `Request` object as argument \(which is provided by the Play framework for us when it invokes our `Action` method  - after matching the HTTP request to a `route` defined in our routing configuration\). The code block that we define in our `Action` is then invoked for us. Finally, the last expression we define in our `Action` code block, which is required to create a `Result` object, is then wrapped in a `Future` object for us \(by the underlying framework\) and this is then returned by the `Action` to the framework, to be computed later, asynchronously \(probably by a different thread\).
-
-Play provides us with the `ActionBuilder` trait to make the job of creating these `Action` functions easier. The `ActionFunction` trait defines the key abstract method called `invokeBlock` which any concrete `ActionBuilder` needs to override. If you study the signature of this method, it describes the general abstraction for how an `Action` behaves:-
-
-```scala
-def invokeBlock[A](request: R[A], block: P[A] => Future[Result]): Future[Result]
-```
-
-This basically says _"Give me a _`Request`_, and a block of code which takes a Parameter type and generates a _`Future[Result]`_, and I will return you that _`Future[Result]`. Basically, the framework supplies the `Request` object, and takes care of wrapping your `Result` in a `Future` so that it can be executed somewhere later in an asynchronous fashion. All you really need to do is write the _block_ of code that generates the `Result` and the framework takes care of the rest.
-
-In the `Action.class` \(which is where `ActionBuilder` and `ActionFunction` are defined\) there is a helper `Action` object which defines `invokeBlock` so that you do not have to \(in general\):-
-
-```scala
-object Action extends ActionBuilder[Request] {
-  def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
-}
-```
-
-The type hierarchy for Actions is as follows:-
-
-```scala
-Action -> ActionBuilder -> ActionFunction
-```
-
-> In a nutshell, the framework provides our `Action` with a `Request` and also takes care of wrapping the `Result` in a `Future` to be completed asynchronously somewhere. The only thing we \(generally\) have to do is define the code block inside the `Action` that we would like to be executed, and which must result in the creation of a `Result`.
-
-```scala
-trait Handler
-         ▲
-         |
-trait EssentialAction
-         ▲
-         |
-trait Action
-
-
-
-
-trait ActionFunction[-R[_], +P[_]]
-trait ActionBuilder[+R[_]]
-
-trait ActionBuilder[+R[_]] extends ActionFunction[Request, R]
-
-object Action extends ActionBuilder[Request] 
-
-trait ActionRefiner[-R[_], +P[_]] extends ActionFunction[R, P] 
-
-trait ActionTransformer[-R[_], +P[_]] extends ActionRefiner[R, P]
-trait ActionFilter[R[_]] extends ActionRefiner[R, R]
-```
-
-```scala
-// 
-```
 
 ## Helper companion objects for creating actions
 
