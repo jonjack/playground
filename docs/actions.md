@@ -40,10 +40,6 @@ As following suggests, Actions are the entry and exit points to your application
                        +---------------------------------------------------+
 ```
 
-
-
-
-
 ---
 
 ## Actions are functions
