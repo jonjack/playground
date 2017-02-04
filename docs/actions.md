@@ -1,6 +1,6 @@
 # Actions
 
-
+* [What is their purpose?](#)    
 * [Actions are functions](#)    
 * [What are Controllers?](#)      
 * [The boundary between application and outside world](#)    
@@ -12,15 +12,49 @@
 
 ---
 
-## What are Actions?
+## What is their purpose?
 
-#### In a nutshell
+When a request enters your Play application, the internals of the framework do some background work (ie. create a `Request` object), and then your application code will be called in order to execute whatever code is necessary to build the response. We need some abstraction that serves as this entry point into the application code and Actions are that abstraction.
+
+As following suggests, Actions are the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` (the response) - how that Result gets built is the responsibility of the developer to implement.
+
+
+
+```scala
+                              Your  Play  Application  Code
+ Netty HTTP Server     +--------------------+------------------------------+
+                       |                    |                              |
+   Play Framework      |    Controller      |                              |
+                       |      |             |                              |
+                       |      |             |                              |
+  HTTP Requests  --------->   |- Action     |                              |
+  HTTP Responses <---------   |- Action  ---------► Other Application code |
+                       |                    |                              |
+                       |          |         |            |                 |
+                       +----------|---------+------------|-----------------+
+                                  |                      |
+                       +----------|----------------------|-----------------+                                                  
+                       |          ▼     Web Services     ▼                 |
+                       |                 Datastores                        |
+                       |                   Caches                          |
+                       +---------------------------------------------------+
+```
+
+
+
+
+
+---
+
+## Actions are functions
 
 Actions are simply functions that take a `Request` as input and return a `Result` ie. they are of type `Request => Result`
 
 The Play framework takes care of passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
 
-You imp
+
+
+
 
 #### The Details
 
