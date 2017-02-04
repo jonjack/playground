@@ -1,7 +1,7 @@
-# Controllers & Actions
+# Actions
 
 
-* [What are Actions?](#)    
+* [Actions are functions](#)    
 * [What are Controllers?](#)      
 * [The boundary between application and outside world](#)    
 * [Actions should be non-blocking](#)    
