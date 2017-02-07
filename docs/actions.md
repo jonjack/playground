@@ -49,15 +49,23 @@ Actions are simply functions that take a `Request` as input and return a `Result
 The Play framework takes care of passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
 
 
-## How do Actions get invoked ?
+## How Actions are invoked
 
 Here is an overview of how an `Action` gets called:-
 
 1. The main entrypoint for any Play application is [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87).    
-The [`DefaultHttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the (injected) [`Router`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/routing/Router.scala#L15) to try and match a handler (an Action method) to deal with the Request. The documentation for [`routeRequest`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L177-L190) explains how this method can be overridden if you need to implement some custom routing strategy.
+When a request is received by the application, the [`DefaultHttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the (injected) [`Router`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/routing/Router.scala#L15) to try and match a handler (an Action method) to deal with the Request.    
+Incidentally, the documentation for [`routeRequest`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L177-L190) explains how this method can be overridden if you need to implement some custom routing strategy.    
+So [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) finds the matching Action method (via the Router), invokes it and returns the Action function ie. the _Handler_.
 
-2. 
+2. After various checks have been made, the server (ie. Netty or Akka server) then invokes the action function. The [`handleAction`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) method of [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) is what actually executes the Action function (inside a [for comprehension](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L261-L284)) and converts the `actionResult` into a Netty `HttpResponse`
 
+## How requests are queued
+
+Note that the queuing of requests is managed inside [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala) and can be seen [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L42) and [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L175).
+
+
+---
 
 #### The Details
 
