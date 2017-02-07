@@ -49,7 +49,12 @@ Actions are simply functions that take a `Request` as input and return a `Result
 The Play framework takes care of passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
 
 
+## How do Actions get invoked ?
 
+Here is an overview of how an `Action` gets called:-
+
+1. The main entrypoint for any Play application is [HttpRequestHandler](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87).   
+The [DefaultHttpRequestHandler](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the Router to try and match a handler for the request ie. the Action method is the handler 
 
 
 #### The Details
