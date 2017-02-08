@@ -50,9 +50,9 @@ Actions are functions which basically map a `Request` to `=>` a `Result`
 
 ## How Actions are constructed
 
-Actions are built by Action Builders and there are a couple of different types to handle different cases.
+Actions are built by Action Builders, of which there is 1 main implementation - [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L304) and a couple of specialized [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L507) versions. 
 
-All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method `invokeBlock` 
+All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method [`invokeBlock`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L265) which all Action Builder implementations must provide a concrete implementation of. 
 
 ## How Actions are invoked
 
