@@ -44,9 +44,11 @@ As following suggests, Actions are the entry and exit points to your application
 
 ## Actions are functions
 
-Actions are simply functions that take a `Request` as input and return a `Result` ie. they are of type `Request => Result`
+Actions are functions of type `Request => Result`
 
-The Play framework takes care of passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
+that take a `Request` as input and return a `Result` ie. they are of type 
+
+The Play framework takes care of routing a request to passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
 
 
 ## How Actions are invoked
