@@ -48,10 +48,11 @@ Actions are functions which basically map a `Request` to `=>` a `Result`
 
 `EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body (if it has one) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
-that take a `Request` as input and return a `Result` ie. they are of type 
+## How Actions are constructed
 
-The Play framework takes care of routing a request to passing a HTTP `Request` object in, and you just need to take care of the implementing whatever logic is needed to build the `Result` that Play then takes care of returning back to the calling client.
+Actions are built by Action Builders and there are a couple of different types to handle different cases.
 
+All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method `invokeBlock` 
 
 ## How Actions are invoked
 
