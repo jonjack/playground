@@ -44,7 +44,9 @@ As following suggests, Actions are the entry and exit points to your application
 
 ## Actions are functions
 
-Actions are functions of type `Request => Result`
+Actions are functions which basically map a `Request` to `=>` a `Result`
+
+`EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body (if it has one) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
 that take a `Request` as input and return a `Result` ie. they are of type 
 
