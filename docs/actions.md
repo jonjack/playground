@@ -14,11 +14,9 @@
 
 ## What is their purpose?
 
-When a request enters your Play application, the internals of the framework do some background work (ie. create a `Request` object), and then your application code will be called in order to execute whatever code is necessary to build the response. We need some abstraction that serves as this entry point into the application code and Actions are that abstraction.
+When a request enters your Play application, the internals of the framework do some background work \(ie. create a `Request` object\), and then your application code will be called in order to execute whatever code is necessary to build the response. We need some abstraction that serves as this entry point into the application code and Actions are that abstraction.
 
-As following suggests, Actions are the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` (the response) - how that Result gets built is the responsibility of the developer to implement.
-
-
+As following suggests, Actions are the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
 
 ```scala
                               Your  Play  Application  Code
@@ -46,35 +44,34 @@ As following suggests, Actions are the entry and exit points to your application
 
 Actions are functions which basically map a `Request` to `=>` a `Result`
 
-`EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body (if it has one) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
+`EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body \(if it has one\) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
 ## How Actions are constructed
 
-Actions are built by Action Builders, of which there is 1 main implementation - [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L304) and a couple of specialized [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L507) versions. 
+Actions are built by Action Builders, of which there is 1 main implementation - [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L304) and a couple of specialized [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L507) versions.
 
-All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method [`invokeBlock`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L265) which all Action Builder implementations must provide a concrete implementation of. Here is the implementation of `invokeBlock` for the default [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L479), and for [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L517). Notice that 
+All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method [`invokeBlock`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L265) which all Action Builder implementations must provide a concrete implementation of. Here is the implementation of `invokeBlock` for the default [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L479), and for [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L517). Notice that
 
 ## How Actions are invoked
 
 Here is an overview of how an `Action` gets called:-
 
-1. The main entrypoint for any Play application is [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87).    
-When a request is received by the application, the [`DefaultHttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the (injected) [`Router`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/routing/Router.scala#L15) to try and match a handler (an Action method) to deal with the Request.    
-Incidentally, the documentation for [`routeRequest`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L177-L190) explains how this method can be overridden if you need to implement some custom routing strategy.    
-So [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) finds the matching Action method (via the Router), invokes it and returns the Action function ie. the _Handler_.
+1. The main entrypoint for any Play application is [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87)  
+   When a request is received by the application, the [`DefaultHttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the \(injected\) [`Router`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/routing/Router.scala#L15) to try and match a handler \(an Action method\) to deal with the Request.  
+   Incidentally, the documentation for [`routeRequest`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L177-L190) explains how this method can be overridden if you need to implement some custom routing strategy.  
+   So [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) finds the matching Action method \(via the Router\), invokes it and returns the Action function ie. the _Handler_.
 
-2. After various checks have been made, the server (ie. Netty or Akka server) then invokes the action function. The [`handleAction`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) method of [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) is what actually executes the Action function (inside a [for comprehension](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L261-L284)) and converts the `actionResult` into a Netty `HttpResponse`
+2. After various checks have been made, the server - ie. Netty \(prior to v.2.6\) or Akka Http server \(post v.2.6\) - then invokes the action function. The [`handleAction`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) method of [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) is what actually executes the Action function \(inside a [for comprehension](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L261-L284)\) and converts the `actionResult` into a Netty `HttpResponse`
 
 ## How requests are queued
 
 Note that the queuing of requests is managed inside [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala) and can be seen [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L42) and [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L175).
 
-
 ---
 
 #### The Details
 
-The following are examples of methods (usually defined in a controller) that all return an `Action` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The `Ok` basically creates a response with a HTTP response code of `200 OK`.
+The following are examples of methods \(usually defined in a controller\) that all return an `Action` object. They all ultimately do exactly the same thing - they return the string "Hi" as a HTTP response. The `Ok` basically creates a response with a HTTP response code of `200 OK`.
 
 ```scala
   def parens =                Action ( Ok("Hi") )
@@ -140,7 +137,6 @@ trait ActionFilter[R[_]] extends ActionRefiner[R, R]
 ```scala
 // 
 ```
-
 
 ---
 
@@ -264,6 +260,7 @@ GET      /home         HomeController.homeActionBuilderMethod
 There is a considerable layer of code between the HTTP protocol server that Play uses \(which is [Netty](http://netty.io/) at the time of writing\) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. In short, the Netty server and Play framework code will invoke your `Action` method \(based on finding a matching mapping in the `routes` file\) and pass it a Scala object of type [Request](https://playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.Request).
 
 ```scala
+# 
 GET      /home         HomeController.homeActionBuilderMethod
 
 class HomeController extends Controller {
@@ -277,8 +274,6 @@ class HomeController extends Controller {
 A `Controller` can be thought of as just a class that provides some context and utilities for helping you create and organise your `Action`s and their associated `Result`s.
 
 ## What is an Action?
-
-
 
 ## Helper companion objects for creating actions
 
@@ -308,8 +303,27 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ---
 
+---
+
+## \#\# ARTICLE STARTS BELOW \(ABOVE IS ALL TEMPORARY CONTENT\)
+
+## Action Architecture
+
+
+
+---
+
+# Designing your own Actions
+
+In a [conversation](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/tyBUkIH2AwAJ) with Will Sargent \(Lightbend Engineer\) on the Google Play Group forum, he states:-
+
+> "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
+
+Here is an example of a [custom PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample application designed to handle a Post request for a RESTful API server. It extends ActionBuilder to take a `PostRequest` rather than a plain old Request and 
+
+
+
 ## Articles
 
-[All Actions are asynchronous by default](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/25PU-Y0RhGoJ) - very good blog post by James Roper on how Actions work behind the scenes. Very insightful, especially if you are unsure of the difference between `Action.apply` and `Action.async`. He also talks (in the same thread) about [blocking actions and execution contexts](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/Hz5mKs4NVpIJ) and how wrapping some blocking I/O code in a `Future` does not magically make the I/O asynchronous and therefore the action will be synchronous. The performance implications require an understanding of how you can have blocking code run in a different thread pool.
-
+[All Actions are asynchronous by default](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/25PU-Y0RhGoJ) - very good blog post by James Roper on how Actions work behind the scenes. Very insightful, especially if you are unsure of the difference between `Action.apply` and `Action.async`. He also talks \(in the same thread\) about [blocking actions and execution contexts](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/Hz5mKs4NVpIJ) and how wrapping some blocking I/O code in a `Future` does not magically make the I/O asynchronous and therefore the action will be synchronous. The performance implications require an understanding of how you can have blocking code run in a different thread pool.
 
