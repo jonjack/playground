@@ -319,7 +319,7 @@ In a [conversation](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/t
 
 > "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
 
-Here is an example of a [custom PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample application designed to handle a Post request for a RESTful API server. It extends ActionBuilder to take a `PostRequest` rather than a plain old Request and 
+Here is an example of a custom [PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample application designed to handle a Post request for a RESTful API server. It extends ActionBuilder to take a `PostRequest` rather than a plain old Request and 
 
 
 
