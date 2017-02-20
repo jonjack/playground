@@ -309,19 +309,15 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## Action Architecture
 
-
-
 ---
 
 # Designing your own Actions
 
 In a [conversation](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/tyBUkIH2AwAJ) with Will Sargent \(Lightbend Engineer\) on the Google Play Group forum, he states:-
 
-> "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
+> "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
 
-Here is an example of a custom [PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample application designed to handle a Post request for a RESTful API server. It extends ActionBuilder to take a `PostRequest` rather than a plain old Request and 
-
-
+Here is an example of a custom [PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample that is designed to handle a POST request. It extends `ActionBuilder` to take a `PostRequest` rather than a plain old `Request` and
 
 ## Articles
 
