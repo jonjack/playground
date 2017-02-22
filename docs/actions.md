@@ -307,11 +307,18 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## \#\# ARTICLE STARTS BELOW \(ABOVE IS ALL TEMPORARY CONTENT\)
 
+## Some features of Actions
+
+1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of your application.
+2.  **Actions are functions** - 
+
+
+
 ## Action Architecture
 
 ---
 
-# Designing your own Actions
+## Designing your own Actions
 
 In a [conversation](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/tyBUkIH2AwAJ) with Will Sargent \(Lightbend Engineer\) on the Google Play Group forum, he states:-
 
