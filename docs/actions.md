@@ -42,7 +42,7 @@ As following suggests, Actions are the entry and exit points to your application
 
 ## Actions are functions
 
-Actions are functions which basically map a `Request` to `=>` a `Result`
+
 
 `EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body \(if it has one\) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
@@ -269,9 +269,7 @@ class HomeController extends Controller {
 }
 ```
 
-## What is a Controller?
-
-A `Controller` can be thought of as just a class that provides some context and utilities for helping you create and organise your `Action`s and their associated `Result`s.
+## 
 
 ## What is an Action?
 
@@ -310,9 +308,7 @@ I believe that all the code we define in an Action, up until the final expressio
 ## Some features of Actions
 
 1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of your application.
-2.  **Actions are functions** - 
-
-
+2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
 ## Action Architecture
 
