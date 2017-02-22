@@ -16,7 +16,7 @@
 
 When a request enters your Play application, the internals of the framework do some background work \(ie. create a `Request` object\), and then your application code will be called in order to execute whatever code is necessary to build the response. We need some abstraction that serves as this entry point into the application code and Actions are that abstraction.
 
-As following suggests, Actions are the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
+
 
 ```scala
                               Your  Play  Application  Code
@@ -39,8 +39,6 @@ As following suggests, Actions are the entry and exit points to your application
 ```
 
 ---
-
-
 
 `EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body \(if it has one\) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
@@ -223,8 +221,6 @@ An example **Mapping** betwen URI and action method
 GET      /home         HomeController.homeActionBuilderMethod
 ```
 
-
-
 ---
 
 ## Actions are the boundary between HTTP and your application
@@ -289,7 +285,7 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## Some features of Actions
 
-1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of your application.
+1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of your application. Actions are the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
 2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
 ## Action Architecture
