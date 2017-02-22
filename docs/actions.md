@@ -16,8 +16,6 @@
 
 When a request enters your Play application, the internals of the framework do some background work \(ie. create a `Request` object\), and then your application code will be called in order to execute whatever code is necessary to build the response. We need some abstraction that serves as this entry point into the application code and Actions are that abstraction.
 
-
-
 ```scala
                               Your  Play  Application  Code
  Netty HTTP Server     +--------------------+------------------------------+
@@ -225,8 +223,6 @@ GET      /home         HomeController.homeActionBuilderMethod
 
 ## Actions are the boundary between HTTP and your application
 
-An `Action` is arguably one of the most fundamental features of the framework, and therefore of any Play application. They form the main boundary \(for the application developer in any case\) between any Play application code and the HTTP protocol.
-
 As the Play application developer, you specify the mappings between the URL's that your application will serve results for, and the actions that build those results, in a `routes` file. The following example mapping will cause any HTTP request using the GET method on the `home` resource, to invoke the `homeActionBuilderMethod` \(contained in the `HomeController`\).
 
 ```scala
@@ -235,7 +231,7 @@ GET      /home         HomeController.homeActionBuilderMethod
 
 ## How does a HTTP request get passed to your Action?
 
-There is a considerable layer of code between the HTTP protocol server that Play uses \(which is [Netty](http://netty.io/) at the time of writing\) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. In short, the Netty server and Play framework code will invoke your `Action` method \(based on finding a matching mapping in the `routes` file\) and pass it a Scala object of type [Request](https://playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.Request).
+There is a considerable layer of code between the HTTP protocol server that Play uses \(which is [Netty](http://netty.io/) prior to v.2.6 and [Akka Http](http://doc.akka.io/docs/akka-http/current/scala.html) from v2.6 onwards\) and the actions you write, but this is framework code which, for most applications, you will not need to concern yourself with. In short, the Netty server and Play framework code will invoke your `Action` method \(based on finding a matching mapping in the `routes` file\) and pass it a Scala object of type [Request](https://playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.Request).
 
 ```scala
 # 
@@ -285,7 +281,7 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## Some features of Actions
 
-1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of your application. Actions are the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
+1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of any application. Actions are therefore the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
 2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
 ## Action Architecture

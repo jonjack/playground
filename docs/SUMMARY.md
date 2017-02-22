@@ -4,5 +4,5 @@
 * [Actions](actions.md)
 * [Architecture](architecture.md)
 * [Controllers](controllers.md)
-* [Netty Server](netty-server.md)
+* [Http Server](netty-server.md)
 
