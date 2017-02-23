@@ -12,31 +12,7 @@
 
 ---
 
-## What is their purpose?
 
-When a request enters your Play application, the internals of the framework do some background work \(ie. create a `Request` object\), and then your application code will be called in order to execute whatever code is necessary to build the response. We need some abstraction that serves as this entry point into the application code and Actions are that abstraction.
-
-```scala
-                              Your  Play  Application  Code
- Netty HTTP Server     +--------------------+------------------------------+
-                       |                    |                              |
-   Play Framework      |    Controller      |                              |
-                       |      |             |                              |
-                       |      |             |                              |
-  HTTP Requests  --------->   |- Action     |                              |
-  HTTP Responses <---------   |- Action  ---------► Other Application code |
-                       |                    |                              |
-                       |          |         |            |                 |
-                       +----------|---------+------------|-----------------+
-                                  |                      |
-                       +----------|----------------------|-----------------+                                                  
-                       |          ▼     Web Services     ▼                 |
-                       |                 Datastores                        |
-                       |                   Caches                          |
-                       +---------------------------------------------------+
-```
-
----
 
 `EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body \(if it has one\) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
@@ -128,29 +104,7 @@ trait ActionTransformer[-R[_], +P[_]] extends ActionRefiner[R, P]
 trait ActionFilter[R[_]] extends ActionRefiner[R, R]
 ```
 
-```scala
-// 
-```
 
----
-
-## What are Controllers?
-
-...
-
----
-
-## The boundary between application and outside world
-
-...
-
----
-
-## Actions should be non-blocking
-
-...
-
----
 
 ## Which thread pool should Actions run in?
 
@@ -275,6 +229,26 @@ I believe that all the code we define in an Action, up until the final expressio
 ## 
 
 ## Action Architecture
+
+```scala
+                              Your  Play  Application  Code
+ Netty HTTP Server     +--------------------+------------------------------+
+                       |                    |                              |
+   Play Framework      |    Controller      |                              |
+                       |      |             |                              |
+                       |      |             |                              |
+  HTTP Requests  --------->   |- Action     |                              |
+  HTTP Responses <---------   |- Action  ---------► Other Application code |
+                       |                    |                              |
+                       |          |         |            |                 |
+                       +----------|---------+------------|-----------------+
+                                  |                      |
+                       +----------|----------------------|-----------------+                                                  
+                       |          ▼     Web Services     ▼                 |
+                       |                 Datastores                        |
+                       |                   Caches                          |
+                       +---------------------------------------------------+
+```
 
 
 
