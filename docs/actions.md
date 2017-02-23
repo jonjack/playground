@@ -181,12 +181,6 @@ Since an \`Action\`s are functions we can _compose_ them in the same way.
 
 ---
 
-### TLDR
-
-From a logical point of view, Actions are the main gateway through which your Play application manages the requests \(from\) and responses \(to\) the clients using the application. From an implementation point of view, an `action` is an object that takes a `Request` object and returns a `Result`.
-
----
-
 ## Architecture
 
 Here are some diagrams I drew to try and reason about how Actions sit within a Play application architecture.
@@ -267,13 +261,7 @@ object Action extends ActionBuilder[Request] {
 
 I believe that all the code we define in an Action, up until the final expression which generates the `Result`, will be executed in the thread that invoked the `Action`. This means that the `Future[Result]` will not be returned to the framework for completion until all the code \(apart from the final `Result` creation expression\) has been executed. So if we call any other services we should ensure that they are non-blocking - ie. that they do not cause a context switch on a core - otherwise this slows down the execution of Actions and potentially compromises the responsiveness of our application.
 
-## Action Composition
-
-...
-
-,
-
----
+## 
 
 ---
 
@@ -284,9 +272,11 @@ I believe that all the code we define in an Action, up until the final expressio
 1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of any application. Actions are therefore the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
 2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
+## 
+
 ## Action Architecture
 
----
+
 
 ## Designing your own Actions
 
@@ -295,6 +285,14 @@ In a [conversation](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/t
 > "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
 
 Here is an example of a custom [PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample that is designed to handle a POST request. It extends `ActionBuilder` to take a `PostRequest` rather than a plain old `Request` and
+
+
+
+## Action Composition
+
+The use of the term _**composition**_ here is in the functional sense ie. if we have two functions that both take a parameter \`x\` as in \`f\(x\)\` and \`g\(x\)\`, then, if we can apply the result of one function to another, we can combine them to produce one function that applies both of them as in \`f\(g\(x\)\)\` - in this way we say that \`f\` and \`g\` are _**composable**_.
+
+Since an \`Action\`s are functions we can _compose_ them in the same way.
 
 ## Articles
 
