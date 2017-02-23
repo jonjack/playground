@@ -16,11 +16,7 @@
 
 `EssentialAction` is the trait that underlies every Action. It basically takes a Request, consumes it's body \(if it has one\) and returns a Result. You can see EssentialAction and it's companion object in [`Action.scala`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L15-L50)
 
-## How Actions are constructed
 
-Actions are built by Action Builders, of which there is 1 main implementation - [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L304) and a couple of specialized [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L507) versions.
-
-All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method [`invokeBlock`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L265) which all Action Builder implementations must provide a concrete implementation of. Here is the implementation of `invokeBlock` for the default [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L479), and for [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L517). Notice that
 
 ## How Actions are invoked
 
@@ -217,7 +213,42 @@ I believe that all the code we define in an Action, up until the final expressio
 1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of any application. Actions are therefore the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
 2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
-## 
+## Actions are a function of type `Request => Future[Result]`
+
+If you look at the source for the [Action trait](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L65-L117) you will see that an `Action` is just some class with an `apply` method that takes a `Request` and returns a `Future[Result]`. 
+
+Here is [an example](https://github.com/jonjack/play-rest-api/blob/master/app/v1/post/PostAction.scala#L27-L54) of a custom Action with it's own custom implementation of `invokeBlock`. And here is the [controller](https://github.com/jonjack/play-rest-api/blob/master/app/v1/post/PostController.scala#L16-L44) that returns instances of that Action. 
+
+## How Actions are constructed
+
+Actions are built by Action Builders, of which there is 1 main implementation - [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L304) and a couple of specialized [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L507) versions.
+
+All the Action builders extend [`ActionFunction`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L254) which defines the core abstract method [`invokeBlock`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L265) which all Action Builder implementations must provide a concrete implementation of. Here is the implementation of `invokeBlock` for the default [`ActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L479), and for [`ActionRefiner`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L517).
+
+Consider this action method.
+
+```scala
+def index = Action { implicit request =>
+    Ok("Hi")
+  }
+```
+
+- The invocation of `index` will construct and return an instance of `Action`
+- Invoking `index` does not return the result to the client, it returns the Action which will be executed later by the framework
+- The above is equivalent to the following call which explicitly calls the `apply` method, passing a block of code which creates a `Result`. 
+
+ ```scala
+def index = Action.apply ( Ok("Hi") )
+```
+
+ If you trace what type `Ok` is, you will see that it creates an object of type [`Status`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Results.scala#L388-L400), the `apply` method of which you can see returns a `Result`. 
+
+Note that the call to `Action` (expanded by the compiler to `Action.apply`) uses a convenience [Action object](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L495-L499). This object does not have an `apply` method however, but it does extend the [trait ActionBuilder](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L304-L452) which does.
+
+> #### Changes in creating Actions in Play v2.6
+Prior to v2.6, you would generally use the convenience object `Action` (which extended `ActionBuilder`) to construct an `Action`. This is now [deprecated](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L494) however, and since v2.6 you are now encouraged to inject an `ActionBuilder` like [`DefaultActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L473).
+
+
 
 ## Action Architecture
 
@@ -249,7 +280,7 @@ On a Google Play Group forum [thread](https://groups.google.com/d/msg/play-frame
 
 > "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
 
-Here is an example of a custom [PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample that is designed to handle a POST request. It extends `ActionBuilder` to take a `PostRequest` rather than a plain old `Request` and
+Here is an example of a custom [PostAction](https://github.com/playframework/play-rest-api/blob/master/app/v1/post/PostAction.scala) from Will's REST API sample that is designed to handle a POST request. It extends `ActionBuilder` to take a `PostRequest` rather than a plain old `Request`.
 
 
 
@@ -259,17 +290,31 @@ The use of the term _**composition**_ here is in the functional sense ie. if we 
 
 Since an \`Action\`s are functions we can _compose_ them in the same way.
 
-## Walkthrough of a Request => Response trip
+## Walkthrough of executing an Action
+
+#### 1 - The Request gets mapped to an Action method
 
 ```scala
-// 1 - our request gets mapped to an Action method
+class Application extends Controller {
+  
+  def 'index' = Action { implicit request => 
+    Ok("Hi")
+  }
+```
 
-// 2 - we invoke the Action object passing our block - the code inside: Action { ... }
+
+
+
+#### 2 - The Action object passing our block - the code inside: Action { ... }
+
+
+```scala  
+// 
 
 // 3 - object Action extends ActionBuilder so we land in it's apply method
 trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
 
-  final def apply[A](bodyParser: BodyParser[A])(block: R[A] => Result): Action[A] = async(bodyParser) { req: R[A] =>
+  final def 'apply'[A](bodyParser: BodyParser[A])(block: R[A] => Result): Action[A] = 'async(bodyParser)' { req: R[A] =>
     Future.successful(block(req))
   }
   
