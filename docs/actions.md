@@ -245,7 +245,7 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## Designing your own Actions
 
-In a [conversation](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/tyBUkIH2AwAJ) with Will Sargent \(Lightbend Engineer\) on the Google Play Group forum, he states:-
+On a Google Play Group forum [thread](https://groups.google.com/d/msg/play-framework/zpql5zjDoAM/tyBUkIH2AwAJ), Will Sargent \(Lightbend Engineer\) states:-
 
 > "_You should always create your own actions, controllers and request types on top of Play.  This will give you flexibility to add your own context and domain specific information in your classes._"
 
