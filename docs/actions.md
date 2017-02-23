@@ -259,6 +259,24 @@ The use of the term _**composition**_ here is in the functional sense ie. if we 
 
 Since an \`Action\`s are functions we can _compose_ them in the same way.
 
+## Walkthrough of a Request => Response trip
+
+```scala
+// 1 - our request gets mapped to an Action method
+
+// 2 - we invoke the Action object passing our block - the code inside: Action { ... }
+
+// 3 - object Action extends ActionBuilder so we land in it's apply method
+trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
+
+  final def apply[A](bodyParser: BodyParser[A])(block: R[A] => Result): Action[A] = async(bodyParser) { req: R[A] =>
+    Future.successful(block(req))
+  }
+  
+// 4 - apply calls async(bodyParser)
+
+```
+
 ## Articles
 
 [All Actions are asynchronous by default](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/25PU-Y0RhGoJ) - very good blog post by James Roper on how Actions work behind the scenes. Very insightful, especially if you are unsure of the difference between `Action.apply` and `Action.async`. He also talks \(in the same thread\) about [blocking actions and execution contexts](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/Hz5mKs4NVpIJ) and how wrapping some blocking I/O code in a `Future` does not magically make the I/O asynchronous and therefore the action will be synchronous. The performance implications require an understanding of how you can have blocking code run in a different thread pool.
