@@ -208,6 +208,27 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## \#\# ARTICLE STARTS BELOW \(ABOVE IS ALL TEMPORARY CONTENT\)
 
+## Actions in a nutshell - TLDR
+
+This article documents a lot of nitty gritty details of Actions probably needlessly. If you want a quick summary, then here at the core things you should know:-
+
+- Actions can be thought of as just simple functions that take a `Request` and return a `Result`
+
+- The framework takes care of handing your Action a `Request` object, you generally just need to implement the code (in the Action body) that returns the `Result`
+
+- All Action's, generally, have two constructors - `apply` and `async`. 
+  `apply` returns a `Result` and `async` returns a `Future[Result]`
+  
+   ```scala
+   def actionMethod: Result         = Action       { request => [some result] }
+   def actionMethod: Result         = Action.apply { request => [some result] }  // same as sugared version above
+   
+   def actionMethod: Future[Result] = Action.async { request => Future[some result] }
+   ```
+  
+- All Actions are computed asynchronously by the framework, regardless of whether your Action returns a `Future[Result]` (in the case of `async`) or a `Result` (in the case of `apply`). Invoking `apply` (explicitly or not) ends up in a call to one of the `async` functions anyway (behind the scenes), so every Action ends up returning a `scala.concurrent.Future` which will be executed asynchronously by the Play framework.
+
+
 ## Some features of Actions
 
 1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of any application. Actions are therefore the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
