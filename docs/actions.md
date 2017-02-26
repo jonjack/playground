@@ -212,9 +212,7 @@ I believe that all the code we define in an Action, up until the final expressio
 
 This article documents a lot of nitty gritty details of Actions probably needlessly. If you want a quick summary, then here at the core things you should know:-
 
-- Actions can be thought of as just simple functions that take a `Request` and return a `Result`
-
-- The framework takes care of handing your Action a `Request` object, you generally just need to implement the code (in the Action body) that returns the `Result`
+- Actions can be thought of as just simple functions that take a `Request` and return a `Result`, or rather, they are an object that encapsulate a function of type `Request => Result`. When you construct them, you need to supply the `Request => Result` function as an argument (see next)
 
 - All Action's, generally, have two constructors - `apply` and `async`. 
   `apply` returns a `Result` and `async` returns a `Future[Result]`
@@ -225,8 +223,23 @@ This article documents a lot of nitty gritty details of Actions probably needles
    
    def actionMethod: Future[Result] = Action.async { request => Future[some result] }
    ```
+
+- Since Actions generally (unless you are implementing your own), just take a single argument of type `Request => Result`, the use of braces (allowed in Scala for single argument only functions) seems to be the idiom, but this may be a bit confusing to the newcomer to Scala since, at first glance, this can look like the body of the Action. The following examples, are analagous to the above ones and use parens to show that the function is being passed as an argument to either the `apply` or `async` factory methods.
+
+ ```scala
+   def actionMethod: Result         = Action       ( request => [some result])
+   def actionMethod: Result         = Action.apply (request => [some result])  // same as sugared version above
+   def actionMethod: Future[Result] = Action.async ( request => Future[some result])
+   ```
+
+
+
+- The framework takes care of handing your Action a `Request` object, you generally just need to implement the code (in the Action body) that returns the `Result`
   
-- All Actions are computed asynchronously by the framework, regardless of whether your Action returns a `Future[Result]` (in the case of `async`) or a `Result` (in the case of `apply`). Invoking `apply` (explicitly or not) ends up in a call to one of the `async` functions anyway (behind the scenes), so every Action ends up returning a `scala.concurrent.Future` which will be executed asynchronously by the Play framework.
+- All Actions are computed asynchronously by the framework, regardless of whether your Action returns a 
+  `Future[Result]` (in the case of `async`) or a 
+ `Result` (in the case of `apply`)
+  Invoking `apply` (explicitly or not) ends up in a call to one of the `async` functions anyway (behind the scenes), so every Action ends up returning a `scala.concurrent.Future` which will be executed asynchronously by the Play framework.
 
 
 ## Some features of Actions
