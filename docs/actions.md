@@ -358,6 +358,63 @@ trait ActionBuilder[+R[_]] extends ActionFunction[Request, R] {
 
 ```
 
+### Debug Summary
+
+I invoked the following action (Play v2.5) and recorded some of the route below. 
+
+```scala
+def index = Action { Ok(views.html.index("")) }
+```
+
+#### Some of the places the thread landed in
+
+```scala
+// Here is where we start with a call to the Action companion object
+Action { Ok(views.html.index("")) }
+
+// The Action companion object which looks like this
+object Action extends ActionBuilder[Request] {
+  def 'invokeBlock[A]'(request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
+}
+
+// since the above does not have an `apply` method and the call to Action { ... } will be expanded 
+// to a call to Action.apply { ... } we therefore move up to the nearest implementation of `apply`  
+// which is in the parent trait ActionBuilder
+
+
+
+
+// This is where the Action construction seems to begin - inside ActionBuilder.apply
+trait ActionBuilder {
+final def apply[A](bodyParser: BodyParser[A])(block: R[A] => Result): Action[A] = async(bodyParser) { req: R[A] =>
+    'Future.successful(block(req))'
+}
+
+// Then we land in the Action companion object, which is a type of ActionBuilder
+object Action extends ActionBuilder[Request] {
+  def 'invokeBlock[A]'(request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
+}
+
+// Next, we land in this ActionBuilder.apply method
+trait ActionBuilder {
+
+final def async[A](bodyParser: BodyParser[A])(block: R[A] => Future[Result]): Action[A] = composeAction(new Action[A] {
+    def parser = composeParser(bodyParser)
+    def 'apply'(request: Request[A]) = try {
+      invokeBlock(request, block)
+    } catch {
+      // NotImplementedError is not caught by NonFatal, wrap it
+      case e: NotImplementedError => throw new RuntimeException(e)
+      // LinkageError is similarly harmless in Play Framework, since automatic reloading could easily trigger it
+      case e: LinkageError => throw new RuntimeException(e)
+    }
+    override def executionContext = ActionBuilder.this.executionContext
+  })
+
+```
+
+
+
 ## Articles
 
 [All Actions are asynchronous by default](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/25PU-Y0RhGoJ) - very good blog post by James Roper on how Actions work behind the scenes. Very insightful, especially if you are unsure of the difference between `Action.apply` and `Action.async`. He also talks \(in the same thread\) about [blocking actions and execution contexts](https://groups.google.com/d/msg/play-framework-dev/30MqnKDp0Fs/Hz5mKs4NVpIJ) and how wrapping some blocking I/O code in a `Future` does not magically make the I/O asynchronous and therefore the action will be synchronous. The performance implications require an understanding of how you can have blocking code run in a different thread pool.
