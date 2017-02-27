@@ -210,15 +210,16 @@ I believe that all the code we define in an Action, up until the final expressio
 
 ## Actions in a nutshell - TLDR
 
-This article documents a lot of nitty gritty details of Actions probably needlessly. If you want a quick summary, then here at the core things you should know:-
+This article documents a lot of nitty gritty details about Actions. This section is a quick summary of the fundamental features:-
 
 - Actions can be thought of as just simple functions that take a `Request` and return a `Result`, or rather, they are an object that encapsulate a function of type `Request => Result`. When you construct them, you need to supply the `Request => Result` function as an argument (see next)
 
-- All Action's, generally, have two constructors - `apply` and `async`. 
-  `apply` returns a `Result` and `async` returns a `Future[Result]`
+- All Action's, generally, have two constructors - `apply` and `async` 
+  `apply` returns a `Result`
+  `async` returns a `Future[Result]`
   
    ```scala
-   def actionMethod: Result         = Action       { request => [some result] }
+   def actionMethod: Result         = Action       { request => [some result] }  // gets expanded to a call to .apply method
    def actionMethod: Result         = Action.apply { request => [some result] }  // same as sugared version above
    
    def actionMethod: Future[Result] = Action.async { request => Future[some result] }
