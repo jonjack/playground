@@ -1,15 +1,15 @@
 # Actions
 
-* [Actions in a nutshell - TLDR](#)    
-* [Actions are functions](#)    
-* [What are Controllers?](#)      
-* [The boundary between application and outside world](#)    
-* [Actions should be non-blocking](#)    
-* [Which thread pool should Actions run in?](#)
-* [Action composition](#)
-* [Architecture](#)    
-* [Articles](#)    
-
+* [Actions in a nutshell - TLDR](#)     
+* [Actions are a function of type `Request => Future[Result]`](#)    
+* [How Actions are constructed](#)       
+* [How Actions are invoked](#)      
+* [How requests are queued](#)      
+* [Designing your own Actions](#)      
+* [Action Composition](#)     
+* [Walkthrough of executing an Action](#)    
+* [Which thread pool should Actions run in?](#)      
+* [Articles](#)     
 
 ---
 
