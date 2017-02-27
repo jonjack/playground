@@ -369,22 +369,18 @@ def index = Action { Ok(views.html.index("")) }
 #### Some of the places the thread landed in
 
 ```scala
-// Here is where we start with a call to the Action companion object
+// Here is where we start - with a call to the Action companion object
 Action { Ok(views.html.index("")) }
 
-// The Action companion object which looks like this
+// The Action companion object looks like this - note there is no apply method
 object Action extends ActionBuilder[Request] {
   def 'invokeBlock[A]'(request: Request[A], block: (Request[A]) => Future[Result]) = block(request)
 }
 
-// since the above does not have an `apply` method and the call to Action { ... } will be expanded 
+// Since the above does not have an `apply` method and the call to Action { ... } will be expanded 
 // to a call to Action.apply { ... } we therefore move up to the nearest implementation of `apply`  
 // which is in the parent trait ActionBuilder
-
-
-
-
-// This is where the Action construction seems to begin - inside ActionBuilder.apply
+// This is 
 trait ActionBuilder {
 final def apply[A](bodyParser: BodyParser[A])(block: R[A] => Result): Action[A] = async(bodyParser) { req: R[A] =>
     'Future.successful(block(req))'
