@@ -1,6 +1,6 @@
 # Actions
 
-* [What is their purpose?](#)    
+* [Actions in a nutshell - TLDR](#)    
 * [Actions are functions](#)    
 * [What are Controllers?](#)      
 * [The boundary between application and outside world](#)    
