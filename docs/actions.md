@@ -220,7 +220,7 @@ This article documents a lot of nitty gritty details about Actions. This section
 - #### `Request => Future[Result]`
   Actions can be thought of as just simple functions that take a `Request` and return a `Result`, or rather, they are an object that encapsulate a function of type `Request => Result`. When you construct them, you need to supply the `Request => Result` function as an argument (see next)
 
-- #### Constructors
+- #### Constructors - `apply` and `async`
  All Action's, generally, have two constructors - `apply` and `async`
   
   `apply` returns a `Result`
@@ -235,7 +235,7 @@ This article documents a lot of nitty gritty details about Actions. This section
 
   See [How Actions are constructed](#) section below for more details.
 
-- #### The Action body is an anonymous function definition
+- #### The Action "_body_" is actually an anonymous function argument
 Since Actions generally (unless you are implementing your own), just take a single function argument of type `Request => Result`, the use of braces (allowed in Scala for single argument only functions) seems to be the idiom, but this may be a bit confusing to the newcomer to Scala since, at first glance, this can look like the body of the Action. The following examples, are analagous to the above ones and use parens to show that the function is being passed as an argument to either the `apply` or `async` factory methods.
 
  ```scala
@@ -244,10 +244,13 @@ Since Actions generally (unless you are implementing your own), just take a sing
    
  def actionMethod  =  Action.async ( request => Future[some result])
    ```
+  **\*\* So it may look, at first glance, that when you are coding your Action methods, you are implementing the body of the Action. But this is not so. What you are actually doing is implementing the body of the anonymous function that you are passing to the Action constructor method (`apply` or `async`) as an argument.**
+
 
 - The framework takes care of handing your Action a `Request` object, you generally just need to implement the code (in the Action body) that returns the `Result`
   
-- All Actions are computed asynchronously by the framework, regardless of whether your Action is of type:-
+- #### All Actions are asynchronous
+  All Actions are computed asynchronously by the framework, regardless of whether your Action is of type:-
  
  `Action.async(request => Future[Result])` 
   &nbsp; or
@@ -256,10 +259,6 @@ Since Actions generally (unless you are implementing your own), just take a sing
   Invoking `apply` (explicitly or not) ends up in a call to one of the `async` functions anyway (behind the scenes), so every Action ends up returning a `scala.concurrent.Future` which will be executed asynchronously by the Play framework.
 
 
-## Some features of Actions
-
-1. 
-2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
 ## Actions are a function of type `Request => Future[Result]`
 
