@@ -230,14 +230,18 @@ This article documents a lot of nitty gritty details about Actions. This section
  ```scala
    def actionMethod: Result         = Action       ( request => [some result]) // expanded to call to .apply() method
    def actionMethod: Result         = Action.apply (request => [some result])  // same as sugared version above
+   
    def actionMethod: Future[Result] = Action.async ( request => Future[some result])
    ```
 
 - The framework takes care of handing your Action a `Request` object, you generally just need to implement the code (in the Action body) that returns the `Result`
   
-- All Actions are computed asynchronously by the framework, regardless of whether your Action is of type 
- `Action.async(request => Future[Result])` or a 
- `Action.apply(Result): Result` (in the case of `apply`)
+- All Actions are computed asynchronously by the framework, regardless of whether your Action is of type:-
+ 
+ `Action.async(request => Future[Result])` 
+  &nbsp; or
+ `Action.apply(request => Result): Result`
+ 
   Invoking `apply` (explicitly or not) ends up in a call to one of the `async` functions anyway (behind the scenes), so every Action ends up returning a `scala.concurrent.Future` which will be executed asynchronously by the Play framework.
 
 
