@@ -18,20 +18,6 @@
 
 
 
-## How Actions are invoked
-
-Here is an overview of how an `Action` gets called:-
-
-1. The main entrypoint for any Play application is [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87)  
-   When a request is received by the application, the [`DefaultHttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the \(injected\) [`Router`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/routing/Router.scala#L15) to try and match a handler \(an Action method\) to deal with the Request.  
-   Incidentally, the documentation for [`routeRequest`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L177-L190) explains how this method can be overridden if you need to implement some custom routing strategy.  
-   So [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) finds the matching Action method \(via the Router\), invokes it and returns the Action function ie. the _Handler_.
-
-2. After various checks have been made, the server - ie. Netty \(prior to v.2.6\) or Akka Http server \(post v.2.6\) - then invokes the action function. The [`handleAction`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) method of [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) is what actually executes the Action function \(inside a [for comprehension](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L261-L284)\) and converts the `actionResult` into a Netty `HttpResponse`
-
-## How requests are queued
-
-Note that the queuing of requests is managed inside [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala) and can be seen [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L42) and [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L175).
 
 ---
 
@@ -212,26 +198,51 @@ I believe that all the code we define in an Action, up until the final expressio
 
 This article documents a lot of nitty gritty details about Actions. This section is a quick summary of the fundamental features:-
 
-- Actions can be thought of as just simple functions that take a `Request` and return a `Result`, or rather, they are an object that encapsulate a function of type `Request => Result`. When you construct them, you need to supply the `Request => Result` function as an argument (see next)
+- #### They are at the boundary of any Play application
+  Actions are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of any application. Actions are therefore the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
 
-- All Action's, generally, have two constructors - `apply` and `async` 
+- #### Action methods return Actions, not Results
+
+  When you declare an entry (a request mapping) in the `routes` file, you map a request pattern to some Action method. Note that this method does not execute the Action and return a Result, it just triggers the construction of the Action object and returns that.  
+  
+  ```scala
+  def actionMethod  =  Action { request => [some result] } 
+   
+  // with explicit return type
+  def actionMethod: Action[AnyContent]  =  Action { request => [some result] } 
+   ```
+
+- #### The framework executes the Action
+  As stated above, the Action method will return the constructed Action instance. The framework will execute the Action later. 
+
+  See [How Actions are invoked](#) section for more details.
+
+- #### `Request => Future[Result]`
+  Actions can be thought of as just simple functions that take a `Request` and return a `Result`, or rather, they are an object that encapsulate a function of type `Request => Result`. When you construct them, you need to supply the `Request => Result` function as an argument (see next)
+
+- #### Constructors
+ All Action's, generally, have two constructors - `apply` and `async`
+  
   `apply` returns a `Result`
   `async` returns a `Future[Result]`
   
-   ```scala
-   def actionMethod: Result         = Action       { request => [some result] }  // gets expanded to a call to .apply() method
-   def actionMethod: Result         = Action.apply { request => [some result] }  // same as sugared version above
+ ```scala
+ def actionMethod  =  Action       { request => [some result] }  // gets expanded to a call to .apply() method
+ def actionMethod  =  Action.apply { request => [some result] }  // same as sugared version above
    
-   def actionMethod: Future[Result] = Action.async { request => Future[some result] }
+ def actionMethod  =  Action.async { request => Future[some result] }
    ```
 
-- Since Actions generally (unless you are implementing your own), just take a single function argument of type `Request => Result`, the use of braces (allowed in Scala for single argument only functions) seems to be the idiom, but this may be a bit confusing to the newcomer to Scala since, at first glance, this can look like the body of the Action. The following examples, are analagous to the above ones and use parens to show that the function is being passed as an argument to either the `apply` or `async` factory methods.
+  See [How Actions are constructed](#) section below for more details.
+
+- #### The Action body is an anonymous function definition
+Since Actions generally (unless you are implementing your own), just take a single function argument of type `Request => Result`, the use of braces (allowed in Scala for single argument only functions) seems to be the idiom, but this may be a bit confusing to the newcomer to Scala since, at first glance, this can look like the body of the Action. The following examples, are analagous to the above ones and use parens to show that the function is being passed as an argument to either the `apply` or `async` factory methods.
 
  ```scala
-   def actionMethod: Result         = Action       ( request => [some result]) // expanded to call to .apply() method
-   def actionMethod: Result         = Action.apply (request => [some result])  // same as sugared version above
+ def actionMethod  =  Action       ( request => [some result]) // expanded to call to .apply() method
+ def actionMethod  =  Action.apply (request => [some result])  // same as sugared version above
    
-   def actionMethod: Future[Result] = Action.async ( request => Future[some result])
+ def actionMethod  =  Action.async ( request => Future[some result])
    ```
 
 - The framework takes care of handing your Action a `Request` object, you generally just need to implement the code (in the Action body) that returns the `Result`
@@ -247,7 +258,7 @@ This article documents a lot of nitty gritty details about Actions. This section
 
 ## Some features of Actions
 
-1. **They are at the boundary of any Play application** and are generally the first piece of your \(non-framework\) code to be executed when a request comes in. Actually, you can write filters as well which will get executed before your action code, but these are not a mandatory part of your application whereas you have to write Actions since they are the request handlers of any application. Actions are therefore the entry and exit points to your application. They are given a `Request` object by the framework, and they must return a `Result` \(the response\) - how that Result gets built is the responsibility of the developer to implement.
+1. 
 2. **Actions are functions** which basically map a Request to a Result \(\```Request => Result`)``
 
 ## Actions are a function of type `Request => Future[Result]`
@@ -284,6 +295,21 @@ Note that the call to `Action` (expanded by the compiler to `Action.apply`) uses
 
 > #### Changes in creating Actions in Play v2.6
 Prior to v2.6, you would generally use the convenience object `Action` (which extended `ActionBuilder`) to construct an `Action`. This is now [deprecated](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L494) however, and since v2.6 you are now encouraged to inject an `ActionBuilder` like [`DefaultActionBuilder`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/mvc/Action.scala#L473).
+
+## How Actions are invoked
+
+Here is an overview of how an `Action` gets called:-
+
+1. The main entrypoint for any Play application is [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87)  
+   When a request is received by the application, the [`DefaultHttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) calls the \(injected\) [`Router`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/routing/Router.scala#L15) to try and match a handler \(an Action method\) to deal with the Request.  
+   Incidentally, the documentation for [`routeRequest`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L177-L190) explains how this method can be overridden if you need to implement some custom routing strategy.  
+   So [`HttpRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play/src/main/scala/play/api/http/HttpRequestHandler.scala#L87) finds the matching Action method \(via the Router\), invokes it and returns the Action function ie. the _Handler_.
+
+2. After various checks have been made, the server - ie. Netty \(prior to v.2.6\) or Akka Http server \(post v.2.6\) - then invokes the action function. The [`handleAction`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) method of [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L256) is what actually executes the Action function \(inside a [for comprehension](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L261-L284)\) and converts the `actionResult` into a Netty `HttpResponse`
+
+## How requests are queued
+
+Note that the queuing of requests is managed inside [`PlayRequestHandler`](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala) and can be seen [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L42) and [here](https://github.com/playframework/playframework/blob/master/framework/src/play-netty-server/src/main/scala/play/core/server/netty/PlayRequestHandler.scala#L175).
 
 
 
