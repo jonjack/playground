@@ -219,16 +219,16 @@ This article documents a lot of nitty gritty details about Actions. This section
   `async` returns a `Future[Result]`
   
    ```scala
-   def actionMethod: Result         = Action       { request => [some result] }  // gets expanded to a call to .apply method
+   def actionMethod: Result         = Action       { request => [some result] }  // gets expanded to a call to .apply() method
    def actionMethod: Result         = Action.apply { request => [some result] }  // same as sugared version above
    
    def actionMethod: Future[Result] = Action.async { request => Future[some result] }
    ```
 
-- Since Actions generally (unless you are implementing your own), just take a single argument of type `Request => Result`, the use of braces (allowed in Scala for single argument only functions) seems to be the idiom, but this may be a bit confusing to the newcomer to Scala since, at first glance, this can look like the body of the Action. The following examples, are analagous to the above ones and use parens to show that the function is being passed as an argument to either the `apply` or `async` factory methods.
+- Since Actions generally (unless you are implementing your own), just take a single function argument of type `Request => Result`, the use of braces (allowed in Scala for single argument only functions) seems to be the idiom, but this may be a bit confusing to the newcomer to Scala since, at first glance, this can look like the body of the Action. The following examples, are analagous to the above ones and use parens to show that the function is being passed as an argument to either the `apply` or `async` factory methods.
 
  ```scala
-   def actionMethod: Result         = Action       ( request => [some result])
+   def actionMethod: Result         = Action       ( request => [some result]) // expanded to call to .apply() method
    def actionMethod: Result         = Action.apply (request => [some result])  // same as sugared version above
    def actionMethod: Future[Result] = Action.async ( request => Future[some result])
    ```
