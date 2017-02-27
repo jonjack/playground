@@ -284,25 +284,6 @@ Prior to v2.6, you would generally use the convenience object `Action` (which ex
 
 ## Action Architecture
 
-```scala
-                              Your  Play  Application  Code
- Netty HTTP Server     +--------------------+------------------------------+
-                       |                    |                              |
-   Play Framework      |    Controller      |                              |
-                       |      |             |                              |
-                       |      |             |                              |
-  HTTP Requests  --------->   |- Action     |                              |
-  HTTP Responses <---------   |- Action  ---------► Other Application code |
-                       |                    |                              |
-                       |          |         |            |                 |
-                       +----------|---------+------------|-----------------+
-                                  |                      |
-                       +----------|----------------------|-----------------+                                                  
-                       |          ▼     Web Services     ▼                 |
-                       |                 Datastores                        |
-                       |                   Caches                          |
-                       +---------------------------------------------------+
-```
 
 
 
