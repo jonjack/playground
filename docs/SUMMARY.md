@@ -3,6 +3,6 @@
 * [Introduction](README.md)
 * [Actions](actions.md)
 * [Architecture](architecture.md)
-* Controllers
-* [Netty Server](netty-server.md)
+* [Controllers](controllers.md)
+* [Http Server](netty-server.md)
 
