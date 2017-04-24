@@ -23,47 +23,77 @@ import scala.concurrent.Future
 import java.nio.file.StandardCopyOption._
 import java.nio.file.Paths
 
+/**
+ * Class to model our form data.
+ */
 case class FormData(filename: String)
 
 /**
  * Largely copied from Play frameworks own sample file upload implementation.
+ * 
+ * TODO
+ * - We need to think about where we file manipulation eg. resizing.
+ * 
  */
 @Singleton
 class UploadController @Inject() (implicit val messagesApi: MessagesApi, conf: Configuration) extends Controller with i18n.I18nSupport {
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
-  /** Return a simple upload form. */
+  /**
+   * Upload form
+   */
   def index = Action { implicit request =>
     Ok(views.html.index(form))
   }
-
   
-  /**
-  val form = Form(mapping("filename" -> text)(FormData.apply)(FormData.unapply))
+  val form = Form(
+      mapping("filename" -> text)
+      (FormData.apply)
+      (FormData.unapply)
+    )
 
   // Trash the original temporary file after we have done with it.
   private def deleteTempFile(file: File) = {
     Files.deleteIfExists(file.toPath)
   }
-
+   
  /**
-   * Copy a file to our application-specific location, overwriting it if it already exists there.
+   *  File copy utility
+   *  
+   * @file the uploaded file we wish to store 
+   * @name the name of the original file
    * 
-   * TODO
+   * Takes a file object and filename and creates a copy in a path under our control, overwriting it 
+   * if it already exists there.
    * 
-   * - this is where we need to call any manipulation operations - resizing etc - to create 
-   *   possible multiple variations of the original image file
-   * - we can control the application-local path where we drop the new copies to be dynamic ie. based on user, or catch, id ?
+   * We could use file.getName to get the name but this returns the OS-assigned temporary file name 
+   * which if often cryptic and not very useful. The caller is therefore required to pass in the 
+   * filename, which can be the original name.
    * 
-   */
-  // Copies temp file to 
-  private def copyFile(file: File, name: String) = {
-    //val fileStoreBasePath = conf.underlying.getString("image.store")    // file store path from config
-    val path = Files.copy(file.toPath(), Paths.get("/tmp/uploaded/", ("copy_" + name)), REPLACE_EXISTING)
+   * TODO Filestore
+   * 
+   * - ideally we want a more general solution to manage the store of the uploaded file.
+   *   At present we copy it to the local drive here but we should delegate the storage 
+   *   function to another component which abstracts away how we store the file.
+   *   We should create some sort of generic file store component and allow the user to 
+   *   inject the filestore implementation they wish to use.
+   *   
+   *   Some example filestores:-
+   *   - local filesystem
+   *   - Amazon S3
+   *   - Some other remote location
+   * 
+   */ 
+  private def storeFile(file: File, name: String) = {
+    val fileStoreBasePath = conf.underlying.getString("image.store")
+    //val path = Files.copy(file.toPath(), Paths.get("/tmp/", ("copy_" + name)), REPLACE_EXISTING)
+    val path = Files.copy(file.toPath(), Paths.get(fileStoreBasePath, ("copy_" + name)), REPLACE_EXISTING)
+    // using file.getName returns the OS-assigned temporary file name which if often cryptic and not very useful
+    //val path = Files.copy(file.toPath(), Paths.get(fileStoreBasePath, ("copy_" + file.getName)), REPLACE_EXISTING)
     path
   }
-  
+ 
   /** 
    *  Type of multipart file handler to be used by body parser 
    */    
@@ -89,55 +119,23 @@ class UploadController @Inject() (implicit val messagesApi: MessagesApi, conf: C
 
   /**
    * Action to manage multipart file upload as form POST.
+   * 
+   * TODO
+   * - Need to handle exceptions
+   * - Need to implement some file size handling capability
+   * 
    */
   def upload = Action(parse.multipartFormData(handleFilePartAsFile)) { implicit request =>
     
-    val fileOption = request.body.file("filename").map {
+    val file = request.body.file("filename").map {
       
       case FilePart(key, filename, contentType, file) =>
-        val copy = copyFile(file, filename)
+        val copy = storeFile(file, filename)
         val deleted = deleteTempFile(file)  // delete original uploaded file after we have 
         copy   
     }
-    Ok(s"Uploaded: ${fileOption}")
+    Ok(s"Uploaded: ${file}")
   }
-
-**/
   
-
-    // Type for multipart body parser     
-    type FilePartHandler[A] = FileInfo => Accumulator[ByteString, FilePart[A]]
-    
-    val form = Form(mapping("file" -> text)(FormData.apply)(FormData.unapply))
-        
-    private def deleteTempFile(file: File) = Files.deleteIfExists(file.toPath)
-    
-    // Copies temp file to your loc with provided name
-    private def copyFile(file: File, name: String) =
-        Files.copy(file.toPath(), Paths.get("/tmp/uploaded/", ("copy_" + name)), REPLACE_EXISTING)
-      
-    // FilePartHandler which returns a File, rather than Play's TemporaryFile class
-    private def handleFilePartAsFile: FilePartHandler[File] = {
-        case FileInfo(partName, filename, contentType) =>
-          val attr = PosixFilePermissions.asFileAttribute(util.EnumSet.of(OWNER_READ, OWNER_WRITE))
-          val path: Path = Files.createTempFile("multipartBody", "tempFile", attr)
-          val file = path.toFile
-          val fileSink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(file.toPath())
-          val accumulator: Accumulator[ByteString, IOResult] = Accumulator(fileSink)
-          accumulator.map {
-            case IOResult(count, status) =>
-              FilePart(partName, filename, contentType, file)
-          } (play.api.libs.concurrent.Execution.defaultContext)
-      }
-    
-    def upload = Action(parse.multipartFormData(handleFilePartAsFile)) { implicit request =>
-        val fileOption = request.body.file("file").map {
-          case FilePart(key, filename, contentType, file) =>
-            val copy = copyFile(file, filename)
-            val deleted = deleteTempFile(file)  // delete original uploaded file after we have 
-            copy   
-        }
-        Ok(s"Uploaded: ${fileOption}")
-    }
 
 }
