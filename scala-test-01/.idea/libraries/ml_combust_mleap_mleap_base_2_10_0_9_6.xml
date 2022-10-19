@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="ml.combust.mleap:mleap-base_2.10:0.9.6" type="repository">
+    <properties maven-id="ml.combust.mleap:mleap-base_2.10:0.9.6" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/ml/combust/mleap/mleap-base_2.10/0.9.6/mleap-base_2.10-0.9.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.6/scala-library-2.10.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/ml/combust/mleap/mleap-base_2.10/0.9.6/mleap-base_2.10-0.9.6-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.6/scala-library-2.10.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
